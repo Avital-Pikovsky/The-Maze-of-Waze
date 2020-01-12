@@ -9,7 +9,6 @@ import org.json.JSONObject;
 
 import Server.Game_Server;
 import Server.game_service;
-import dataStructure.DGraph;
 import oop_dataStructure.OOP_DGraph;
 import oop_dataStructure.oop_edge_data;
 import oop_dataStructure.oop_graph;
@@ -37,7 +36,7 @@ public class SimpleGameClient {
 		int scenario_num = 2;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
-		DGraph gg = new DGraph();
+		OOP_DGraph gg = new OOP_DGraph();
 		gg.init(g);
 		String info = game.toString();
 		JSONObject line;
