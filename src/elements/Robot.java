@@ -1,4 +1,4 @@
-package gameClient;
+package elements;
 
 public class Robot {
 
