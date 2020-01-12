@@ -7,6 +7,15 @@ public class Fruit {
 	private int type;
 	private Point3D pos;
 	
+	
+	//***************************constructors******************************
+	public Fruit(double v, int t, Point3D p) {
+		value = v;
+		type = t;
+		pos =p;
+	}
+	
+	
 public double getValue() {
 		return value;
 	}
