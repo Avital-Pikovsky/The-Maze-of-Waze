@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.Collection;
 
+import javax.swing.JOptionPane;
+
 import Server.Fruit;
 import Server.Game_Server;
 import Server.game_service;
@@ -17,7 +19,8 @@ import utils.StdDraw;
 
 public class MyGameGUI {
 	private DGraph d = new DGraph();
-	private game_service game = Game_Server.getServer(14); // you have [0,23] games.
+	double EPSILON = 0.001;
+	private game_service game = Game_Server.getServer(17); // you have [0,23] games.
 	private Graph_Algo gra;
 	private graph g;
 
@@ -88,6 +91,7 @@ public class MyGameGUI {
 		drawEdges();
 		drawNodes();
 		drawFruits();
+		drawRobots();
 	}
 	/**
 	 * This method paints the canvas,
@@ -127,7 +131,7 @@ public class MyGameGUI {
 					minY = nodes.getLocation().y();
 			}
 
-			StdDraw.setCanvasSize((int)(Math.abs(minX)+Math.abs(maxX))+800,(int)(Math.abs(minY)+Math.abs(maxY))+800);
+			StdDraw.setCanvasSize((int)(Math.abs(minX)+Math.abs(maxX))+1000,(int)(Math.abs(minY)+Math.abs(maxY))+600);
 			StdDraw.setXscale(minX-0.001, maxX+0.001);
 			StdDraw.setYscale(minY-0.001, maxY+0.001);
 		}
@@ -136,30 +140,33 @@ public class MyGameGUI {
 	 * This method paint all the nodes of the graph, with their key.
 	 */
 	public void drawNodes() {
-		StdDraw.setPenColor(Color.BLUE);
 		StdDraw.setPenRadius(0.03);
 		Collection<node_data> points = g.getV();
 		for (node_data nodes : points) {
+			StdDraw.setPenColor(Color.BLUE);
 
 			StdDraw.point(nodes.getLocation().x(), nodes.getLocation().y());
 			StdDraw.setFont(new Font("Ariel", Font.ROMAN_BASELINE, 20));
-			StdDraw.text(nodes.getLocation().x(), nodes.getLocation().y()+5, ""+ nodes.getKey());
+			StdDraw.setPenColor(Color.BLACK);
+
+			StdDraw.text(nodes.getLocation().x(), nodes.getLocation().y()+0.0002, ""+ nodes.getKey());
 		}
 	}
 	public void drawFruits() {
 		for(elements.Fruit f : d.fruitList) {
 			if(f.getType()==1)
-				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\apple.png" , 0.0022, 0.0007);
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\apple.png" , 0.0009, 0.0007);
 
 			else	
-				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\banana.png" , 0.002, 0.001);
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\banana.png" , 0.001, 0.0009);
 		}
 	}
 	public void drawRobots() {
-	//	game.chooseNextEdge(id, dest);		
-		//	StdDraw.picture(x, y, filename,  0.002, 0.001);
+		for(elements.Robot r : d.robotList ) {
+			StdDraw.picture(r.getPos().x(), r.getPos().y(), "data\\robot.png" , 0.002, 0.001);
 		}
-	
+	}
+
 	/**
 	 * This method paints all the edges of the graph, with their weight and destination.
 	 */
@@ -186,7 +193,7 @@ public class MyGameGUI {
 				StdDraw.point((x0+x1*3)/4, (y0+y1*3)/4);
 
 				StdDraw.setPenColor(Color.black);
-				StdDraw.text((x0+x1*3)/4, (y0+y1*3)/4, ""+ edge.getWeight());
+				StdDraw.text((x0+x1*3)/4, (y0+y1*3)/4, String.format("%.3f", edge.getWeight()));
 			}
 		}
 	}
@@ -206,12 +213,66 @@ public class MyGameGUI {
 	public graph getGraph() {
 		return g;
 	}
+	private void gui() {
 
+		String[] chooseGame = {"Manual game", "Auto game"};
+
+		Object selectedGame = JOptionPane.showInputDialog(null, "Choose a game mode", "Message",
+				JOptionPane.INFORMATION_MESSAGE, null, chooseGame, chooseGame[0]);
+
+		if(selectedGame=="Manual game") {
+
+			String level = JOptionPane.showInputDialog(null, "Choose a level 0-23");
+			game_service game = Game_Server.getServer(Integer.parseInt(level));
+			setGame(game);
+			paint();
+
+			if(d.getNumRobot() == 1)
+				JOptionPane.showMessageDialog(null, "Choose place for the robot");
+
+			else
+				JOptionPane.showMessageDialog(null, "Choose place for "+d.getNumRobot()+" robots");
+
+
+			int i=0;
+			int num = d.getNumRobot();
+			System.out.println(num);
+			while(i<num) {
+				if(StdDraw.isMousePressed()) {
+					StdDraw.isMousePressed = false;
+					//	StdDraw.isMousePressed();
+
+					Collection<node_data> point = g.getV();
+
+					for (node_data nodes : point) {
+						double x = nodes.getLocation().x();
+						double y = nodes.getLocation().y();
+						//System.out.println(StdDraw.mouseX());
+						//	System.out.println(StdDraw.mouseY());
+
+						if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
+								&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
+							System.out.println("point "+ i);
+							System.out.println(StdDraw.mouseX());
+							StdDraw.point(StdDraw.mouseX(), StdDraw.mouseY());
+							i++;
+						}
+					}
+					//game.addRobot(arg0);
+				}		
+			}
+		}
+
+		if(selectedGame=="Auto game") {
+
+		}
+
+	}
 
 	public static void main(String[] a) {
 
 		MyGameGUI my = new MyGameGUI();
-		my.paint();
+		my.gui();
 
 
 
