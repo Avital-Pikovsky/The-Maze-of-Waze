@@ -129,6 +129,8 @@ public class DGraph implements Serializable,graph {
 			JSONObject gameServerLine = line2.getJSONObject("GameServer");
 			int rs = gameServerLine.getInt("robots");
 			this.setNumRobot(rs);
+			
+			
 
 		}
 		catch (JSONException e){

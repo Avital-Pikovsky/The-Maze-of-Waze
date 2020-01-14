@@ -486,6 +486,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	public static void setGui(MyGameGUI g) {
 		gui = g;
 	}
+
 	/**
 	 *  The color black.
 	 */
@@ -1679,7 +1680,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	 * @return {@code true} if the mouse is being pressed; {@code false} otherwise
 	 */
 	public static boolean isMousePressed()
-{
+	{
 		synchronized (mouseLock) {
 			return isMousePressed;
 		}
@@ -1753,6 +1754,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		synchronized (mouseLock) {
 			mouseX = StdDraw.userX(e.getX());
 			mouseY = StdDraw.userY(e.getY());
+			mouseP=new Point3D(mouseX, mouseY);
 			isMousePressed = true;
 		}
 	}

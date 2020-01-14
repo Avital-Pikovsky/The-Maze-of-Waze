@@ -3,11 +3,15 @@ package gameClient;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import Server.Fruit;
+import org.json.JSONException;
+import org.json.JSONObject;
+import dataStructure.Node;
 import Server.Game_Server;
 import Server.game_service;
 import algorithms.Graph_Algo;
@@ -15,11 +19,14 @@ import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.graph;
 import dataStructure.node_data;
+import elements.Fruit;
+import elements.Robot;
+import utils.Point3D;
 import utils.StdDraw;
 
 public class MyGameGUI {
 	private DGraph d = new DGraph();
-	double EPSILON = 0.001;
+	double EPSILON = 0.0002;
 	private game_service game = Game_Server.getServer(17); // you have [0,23] games.
 	private Graph_Algo gra;
 	private graph g;
@@ -27,7 +34,8 @@ public class MyGameGUI {
 	public void paint(){
 		d.init(game);
 		init(d);
-		drawAll();
+		drawGraph();
+
 	}
 
 	public game_service getGame() {
@@ -81,17 +89,16 @@ public class MyGameGUI {
 	public void init(String name) {
 		this.gra.init(name);
 		this.g=gra.g;
-		drawAll();
+		drawGraph();
 	}
 	/**
 	 * The main paint function, drawing the whole graph.
 	 */
-	public void drawAll() {
+	public void drawGraph() {
 		drawCanvas();
 		drawEdges();
 		drawNodes();
-		drawFruits();
-		drawRobots();
+		addFirstFruits();
 	}
 	/**
 	 * This method paints the canvas,
@@ -146,24 +153,51 @@ public class MyGameGUI {
 			StdDraw.setPenColor(Color.BLUE);
 
 			StdDraw.point(nodes.getLocation().x(), nodes.getLocation().y());
-			StdDraw.setFont(new Font("Ariel", Font.ROMAN_BASELINE, 20));
+			StdDraw.setFont(new Font("Ariel", Font.ROMAN_BASELINE, 15));
 			StdDraw.setPenColor(Color.BLACK);
 
 			StdDraw.text(nodes.getLocation().x(), nodes.getLocation().y()+0.0002, ""+ nodes.getKey());
 		}
 	}
-	public void drawFruits() {
+	public void addFirstFruits() {
 		for(elements.Fruit f : d.fruitList) {
 			if(f.getType()==1)
-				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\apple.png" , 0.0009, 0.0007);
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\apple.png" , 0.001, 0.0005);
 
 			else	
-				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\banana.png" , 0.001, 0.0009);
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\banana.png" , 0.0015, 0.001);
 		}
 	}
-	public void drawRobots() {
-		for(elements.Robot r : d.robotList ) {
-			StdDraw.picture(r.getPos().x(), r.getPos().y(), "data\\robot.png" , 0.002, 0.001);
+	public void addRobots() {
+		int i=1;
+		int num = d.getNumRobot();
+		System.out.println(num);
+		while(i<=num) {
+			if(StdDraw.isMousePressed()) {
+				StdDraw.isMousePressed = false;
+
+				Collection<node_data> point = g.getV();
+
+
+				for (node_data nodes : point) {
+
+					double x = nodes.getLocation().x();
+					double y = nodes.getLocation().y();
+
+					if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
+							&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
+
+						//StdDraw.point(x, y);
+						StdDraw.picture(x, y, "data\\robot.png" , 0.001, 0.001);
+						Point3D p = new Point3D(x,y);
+						Robot r = new Robot(1, nodes.getKey(), -1, i, p);
+						game.addRobot(r.getSrc());
+						d.addRobot(r);
+						i++;
+
+					}
+				}
+			}		
 		}
 	}
 
@@ -186,10 +220,10 @@ public class MyGameGUI {
 				StdDraw.setPenColor(Color.RED);
 				StdDraw.line(x0, y0, x1, y1);
 
-				StdDraw.setFont(new Font("Ariel", Font.BOLD, 20));
+				StdDraw.setFont(new Font("Ariel", Font.ROMAN_BASELINE, 15));
 
 				StdDraw.setPenColor(Color.CYAN);
-				StdDraw.setPenRadius(0.05);
+				StdDraw.setPenRadius(0.02);
 				StdDraw.point((x0+x1*3)/4, (y0+y1*3)/4);
 
 				StdDraw.setPenColor(Color.black);
@@ -197,6 +231,7 @@ public class MyGameGUI {
 			}
 		}
 	}
+
 
 	/**
 	 * 
@@ -220,54 +255,153 @@ public class MyGameGUI {
 		Object selectedGame = JOptionPane.showInputDialog(null, "Choose a game mode", "Message",
 				JOptionPane.INFORMATION_MESSAGE, null, chooseGame, chooseGame[0]);
 
-		if(selectedGame=="Manual game") {
+		String level = JOptionPane.showInputDialog(null, "Choose a level 0-23");
+		game_service game = Game_Server.getServer(Integer.parseInt(level));
+		setGame(game);
+		paint();
 
-			String level = JOptionPane.showInputDialog(null, "Choose a level 0-23");
-			game_service game = Game_Server.getServer(Integer.parseInt(level));
-			setGame(game);
-			paint();
 
-			if(d.getNumRobot() == 1)
+		if(selectedGame == "Manual game") {
+
+			if(d.getNumRobot() == 1) {
 				JOptionPane.showMessageDialog(null, "Choose place for the robot");
-
-			else
-				JOptionPane.showMessageDialog(null, "Choose place for "+d.getNumRobot()+" robots");
-
-
-			int i=0;
-			int num = d.getNumRobot();
-			System.out.println(num);
-			while(i<num) {
-				if(StdDraw.isMousePressed()) {
-					StdDraw.isMousePressed = false;
-					//	StdDraw.isMousePressed();
-
-					Collection<node_data> point = g.getV();
-
-					for (node_data nodes : point) {
-						double x = nodes.getLocation().x();
-						double y = nodes.getLocation().y();
-						//System.out.println(StdDraw.mouseX());
-						//	System.out.println(StdDraw.mouseY());
-
-						if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
-								&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
-							System.out.println("point "+ i);
-							System.out.println(StdDraw.mouseX());
-							StdDraw.point(StdDraw.mouseX(), StdDraw.mouseY());
-							i++;
-						}
-					}
-					//game.addRobot(arg0);
-				}		
 			}
+			else {
+				JOptionPane.showMessageDialog(null, "Choose place for "+d.getNumRobot()+" robots");
+			}
+
+			addRobots();
+
+			game.startGame();
+			while(game.isRunning()) {
+
+				moveRobots(game);
+				StdDraw.clear();
+				StdDraw.enableDoubleBuffering();
+				updateGraph(game);
+				StdDraw.show();
+			}
+
 		}
 
-		if(selectedGame=="Auto game") {
+		if(selectedGame == "Auto game") {
+
+
+
+			//	game.chooseNextEdge(arg0, arg1);
 
 		}
 
 	}
+	private void moveRobots(game_service game) {
+		int i=0;
+		while(i<d.getNumRobot()) {
+
+			if(StdDraw.isMousePressed()) {
+				StdDraw.isMousePressed = false;
+				for (Robot r : d.robotList) {
+
+					if(r.getDest()==-1) {	
+
+						double x = r.getPos().x();
+						double y = r.getPos().y();
+
+						if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
+								&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
+							int newDest = checkIfNext(r.getSrc());
+							game.chooseNextEdge(r.getId(), newDest);
+							i++;
+						}
+					}
+					game.move();
+
+				}
+			}
+		}
+	}
+
+	private int checkIfNext(int src) {
+		int dest=-2;
+		if(StdDraw.isMousePressed()) {
+			StdDraw.isMousePressed = false;
+
+			for (edge_data edge : (d.getE(src))) {
+
+				double x = d.getNode(edge.getDest()).getLocation().x();
+				double y = d.getNode(edge.getDest()).getLocation().y();
+
+				if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
+						&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
+
+					dest = d.getNode(edge.getDest()).getKey();
+				}
+			}
+		}
+
+		return dest;
+
+	}
+
+	private void updateRobots(game_service game) {
+		d.robotList.clear();
+		List<String> r = game.getRobots();
+		int i=0;
+		for(String rob : r) {
+			JSONObject line;
+			try {
+				line = new JSONObject(rob);
+				JSONObject jsonRob = line.getJSONObject("Robot");
+				Object p = jsonRob.getString("pos");
+				Point3D pos= new Point3D(p.toString());	
+				int src = jsonRob.getInt("src");
+				int dest = jsonRob.getInt("dest");
+				Robot roby = new Robot(1, src, dest, i, pos);
+				d.addRobot(roby);
+				i++;
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			for (Robot ro : d.robotList) {
+				StdDraw.picture(ro.getPos().x(), ro.getPos().y(), "data\\robot.png" , 0.001, 0.001);
+			}
+		}
+	}
+
+	private void updateFruits(game_service game) {
+		d.fruitList.clear();
+		List<String> f = game.getFruits();
+		for(String fruit : f) {
+			JSONObject line;
+			try {
+				line = new JSONObject(fruit);
+				JSONObject jsonRob = line.getJSONObject("Fruit");
+				Object p = jsonRob.getString("pos");
+				Point3D pos= new Point3D(p.toString());
+				int type = jsonRob.getInt("type");
+				double value = jsonRob.getInt("value");
+
+				Fruit fr = new Fruit(value, type, pos);
+				d.addFruit(fr);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			for(Fruit fru : d.fruitList) {
+				if (fru.getType()==1)
+					StdDraw.picture(fru.getPos().x(), fru.getPos().y(), "data\\apple.png" , 0.001, 0.001);
+
+				else
+					StdDraw.picture(fru.getPos().x(), fru.getPos().y(), "data\\banana.png" , 0.001, 0.001);
+			}
+		}
+	}
+
+	private void updateGraph(game_service game) {
+		drawEdges();
+		drawNodes();
+		updateFruits(game);
+		updateRobots(game);
+	}
+
 
 	public static void main(String[] a) {
 
