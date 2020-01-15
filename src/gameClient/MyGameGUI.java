@@ -26,6 +26,7 @@ import elements.Fruit;
 import elements.Robot;
 import utils.Point3D;
 import utils.StdDraw;
+import gameClient.Game_Algo;
 
 public class MyGameGUI {
 	private DGraph d = new DGraph();
@@ -195,10 +196,9 @@ public class MyGameGUI {
 		}
 	}
 
-	public void addRobots() {
+	public void addManualRobots() {
 		int i=1;
 		int num = d.getNumRobot();
-		System.out.println(num);
 		while(i<=num) {
 			if(StdDraw.isMousePressed()) {
 				StdDraw.isMousePressed = false;
@@ -214,7 +214,6 @@ public class MyGameGUI {
 					if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
 							&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
 
-						//StdDraw.point(x, y);
 						StdDraw.picture(x, y, "data\\robot.png" , 0.001, 0.001);
 						Point3D p = new Point3D(x,y);
 						Robot r = new Robot(1, nodes.getKey(), -1, i, p);
@@ -242,7 +241,6 @@ public class MyGameGUI {
 		int newDest = checkIfNext(d.robotList.get(robPoint).getSrc());
 		game.chooseNextEdge(d.robotList.get(robPoint).getId(), newDest);
 		game.move();
-		System.out.println(robPoint);
 	}
 
 	private int checkIfNext(int src) {
@@ -348,13 +346,12 @@ public class MyGameGUI {
 				JOptionPane.showMessageDialog(null, "Choose place for "+d.getNumRobot()+" robots");
 			}
 
-			addRobots();
+			addManualRobots();
 
 			game.startGame();
-			while(game.isRunning()) {
+			while(game.isRunning()){
 
 				moveRobots(game);
-
 				StdDraw.clear();
 				StdDraw.enableDoubleBuffering();
 				updateGraph(game);
@@ -364,10 +361,27 @@ public class MyGameGUI {
 			JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
 		} 
 
-		if(selectedGame == "Auto game") {
+		else if(selectedGame == "Auto game") {
+			Game_Algo ga = new Game_Algo(this);	
+			ga.addAutoRobot();
+			game.startGame();
+
+			while(game.isRunning()) {
+				System.out.println("in");
+				System.out.println(game.getRobots());
+				ga.AutoNextNode(d.robotList);
+				StdDraw.clear();
+				StdDraw.enableDoubleBuffering();
+				updateGraph(game);
+				printScore(game);
+				StdDraw.show();
+
+			}
+			JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
 
 		}
 	}
+
 
 	//*************************Show Score****************************
 	public void printScore(game_service game) {
