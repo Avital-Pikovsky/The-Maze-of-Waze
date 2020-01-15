@@ -35,6 +35,8 @@ public class DGraph implements Serializable,graph {
 	 */
 	public ArrayList<Robot> robotList = new ArrayList<Robot>();
 
+	public ArrayList<edge_data> allEdges = new ArrayList<edge_data>();
+	
 	@Override
 	public node_data getNode(int key) {
 		if(nodes.get(key)!=null) {
@@ -74,6 +76,7 @@ public class DGraph implements Serializable,graph {
 
 		Edge e = new Edge(src, dest, 0, w , null);
 		edgeSize++;
+		allEdges.add(e);
 		((Node)nodes.get(src)).neighbours.put(dest, e);
 		mc++;
 	}
@@ -171,6 +174,7 @@ public class DGraph implements Serializable,graph {
 	public edge_data removeEdge(int src, int dest) {
 		if(((Node)nodes.get(src)).neighbours.containsKey(dest)) {
 			edgeSize--;
+			allEdges.remove(((Node)nodes.get(src)).neighbours.get(dest));
 			mc++;
 			return ((Node)nodes.get(src)).neighbours.remove(dest);
 		}

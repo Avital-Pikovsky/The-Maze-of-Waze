@@ -11,7 +11,7 @@ class MyGameGUITest extends MyGameGUI {
 	@Test
 	void testPaint() {
 	MyGameGUI my = new MyGameGUI();
-	my.paint();
+	my.initAndPaint();
 	}
 
 }

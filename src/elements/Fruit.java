@@ -6,8 +6,29 @@ public class Fruit {
 	private double value;
 	private int type;
 	private Point3D pos;
-	
-	
+	private int src=0;
+	private int dest=0;
+
+	public int getSrc() {
+		return src;
+	}
+
+
+	public void setSrc(int src) {
+		this.src = src;
+	}
+
+
+	public int getDest() {
+		return dest;
+	}
+
+
+	public void setDest(int dest) {
+		this.dest = dest;
+	}
+
+
 	//***************************constructors******************************
 	public Fruit(double v, int t, Point3D p) {
 		value = v;
