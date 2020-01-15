@@ -30,12 +30,6 @@ public class Game_Algo {
 		my = g;
 	}
 
-	public void allFruitToEdges(List<Fruit> list) {
-		for(Fruit f : list) {
-			FruitToEdge(f);
-		}
-	}
-
 	public MyGameGUI getMy() {
 		return my;
 	}
@@ -59,7 +53,13 @@ public class Game_Algo {
 	public void setD(DGraph d) {
 		this.d = d;
 	}
-
+	
+	public void allFruitToEdges(List<Fruit> list) {
+		for(Fruit f : list) {
+			FruitToEdge(f);
+		}
+	}
+	
 	public void FruitToEdge(Fruit f) {
 		for(edge_data edge : my.getDgraph().allEdges) {
 			int src = edge.getSrc();
@@ -71,24 +71,21 @@ public class Game_Algo {
 
 			if(disNodes >= (dis2f+dis4f)+EPSILON) {
 				f.setSrc(src);
-				System.out.println(f.getSrc());
-				System.out.println(f.getDest());
 				f.setDest(dest);
 			}		
 		}
 	}
 
 	public void addAutoRobot() {
-		int i=0;
-		allFruitToEdges(my.getDgraph().fruitList);
-		while(i<my.getDgraph().getNumRobot()) {
-			for(Fruit f : my.getDgraph().fruitList) {
 
-				game.addRobot(f.getSrc());
-				i++;
-			}
+		allFruitToEdges(d.fruitList);
+		for(int i=0; i< d.getNumRobot();i++) {
+			game.addRobot(d.fruitList.get(i).getSrc());
+
+			i++;
 		}
 	}
+
 
 	public void AutoNextNode(List<Robot> list) {
 		Fruit closest = null;
