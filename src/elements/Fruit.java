@@ -6,8 +6,8 @@ public class Fruit {
 	private double value;
 	private int type;
 	private Point3D pos;
-	private int src=0;
-	private int dest=0;
+	private int src;
+	private int dest;
 
 	public int getSrc() {
 		return src;
@@ -34,6 +34,8 @@ public class Fruit {
 		value = v;
 		type = t;
 		pos =p;
+		src = 0;
+		dest = 0;
 	}
 	
 	

@@ -10,11 +10,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import Server.Game_Server;
 import Server.game_service;
 import elements.*;
 import utils.Point3D;
-import Server.Game_Server;
 public class DGraph implements Serializable,graph {
 
 	private int edgeSize = 0;
@@ -85,10 +83,8 @@ public class DGraph implements Serializable,graph {
 		String info = game.toString();//Game stats.
 		String g = game.getGraph();//The graph of this game.
 		JSONObject line;
-		System.out.println("start");
 		try {
 			line = new JSONObject(g);
-			System.out.println("try");
 			//adding nodes.
 			JSONArray nodeArray =  line.getJSONArray("Nodes");
 			for (int i = 0; i < nodeArray.length(); i++) {
@@ -96,7 +92,6 @@ public class DGraph implements Serializable,graph {
 				Object p = jsoNode.getString("pos");
 				Point3D pos= new Point3D(p.toString());
 				int id = jsoNode.getInt("id");
-				System.out.println(pos.toString()+"node pos");
 
 				this.addNode(new Node(id, pos, 0, "", 0));
 			}
@@ -108,7 +103,6 @@ public class DGraph implements Serializable,graph {
 				int src = jsonEdge.getInt("src");
 				int dest = jsonEdge.getInt("dest");
 				double w = jsonEdge.getDouble("w");
-				System.out.println();
 
 				this.connect(src, dest, w);
 			}

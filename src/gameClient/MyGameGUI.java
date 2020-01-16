@@ -3,18 +3,13 @@ package gameClient;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
+
 import java.util.Collection;
-import java.util.List;
+
 
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-import dataStructure.Node;
 import Server.Game_Server;
 import Server.game_service;
 import algorithms.Graph_Algo;
@@ -24,9 +19,8 @@ import dataStructure.graph;
 import dataStructure.node_data;
 import elements.Fruit;
 import elements.Robot;
-import utils.Point3D;
 import utils.StdDraw;
-import gameClient.Game_Algo;
+import gameClient.AutoGame;
 
 public class MyGameGUI {
 	private DGraph d = new DGraph();
@@ -34,7 +28,6 @@ public class MyGameGUI {
 	private game_service game = Game_Server.getServer(17); // you have [0,23] games.
 	private Graph_Algo gra;
 	private graph g;
-	private static int robPoint = 0;
 	private static double minX=0, maxX=0, minY=0, maxY=0;
 	private static int scoreInt ;
 
@@ -78,18 +71,23 @@ public class MyGameGUI {
 	public void init(String name) {
 		this.gra.init(name);
 		this.g=gra.g;
-		drawGraph();
+		drawFirstGraph();
 	}
 
+	public void initAndPaint(){
+		d.init(game);
+		init(d);
+		drawFirstGraph();
+	}
 	//***************************Draw Functions****************************
 	/**
 	 * The main paint function, drawing the whole graph.
 	 */
-	public void drawGraph() {
+	public void drawFirstGraph() {
 		drawCanvas();
 		drawEdges();
 		drawNodes();
-		addFirstFruits();
+		drawFirstFruits();
 	}
 
 	/**
@@ -179,212 +177,48 @@ public class MyGameGUI {
 		}
 	}
 
-	public void initAndPaint(){
-		d.init(game);
-		init(d);
-		drawGraph();
-	}
-
 	//*********************Draw First Fruits & Robots***********************
-	public void addFirstFruits() {
-		for(elements.Fruit f : d.fruitList) {
-			if(f.getType()==1)
-				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\apple.png" , 0.001, 0.0005);
-
-			else	
-				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\banana.png" , 0.0015, 0.001);
-		}
-	}
-
-	public void addManualRobots() {
-		int i=1;
-		int num = d.getNumRobot();
-		while(i<=num) {
-			if(StdDraw.isMousePressed()) {
-				StdDraw.isMousePressed = false;
-
-				Collection<node_data> point = g.getV();
-
-
-				for (node_data nodes : point) {
-
-					double x = nodes.getLocation().x();
-					double y = nodes.getLocation().y();
-
-					if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
-							&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
-
-						StdDraw.picture(x, y, "data\\robot.png" , 0.001, 0.001);
-						Point3D p = new Point3D(x,y);
-						Robot r = new Robot(1, nodes.getKey(), -1, i, p);
-						game.addRobot(r.getSrc());
-						d.addRobot(r);
-						i++;
-
-					}
-				}
-			}		
-		}
-	}
-	//*****************************Manual Game Functions**************************
-	private void moveRobots(game_service game) {
-		int rCount = d.getNumRobot();
-		if(StdDraw.isKeyPressed(KeyEvent.VK_1)) {
-			robPoint = 0;
-		}
-		else if((rCount > 1) && (StdDraw.isKeyPressed(KeyEvent.VK_2))) {
-			robPoint = 1;
-		}
-		else if((rCount > 2) && (StdDraw.isKeyPressed(KeyEvent.VK_3))) {
-			robPoint = 2;
-		}
-		int newDest = checkIfNext(d.robotList.get(robPoint).getSrc());
-		game.chooseNextEdge(d.robotList.get(robPoint).getId(), newDest);
-		game.move();
-	}
-
-	private int checkIfNext(int src) {
-		int dest=-2;
-		if(StdDraw.isMousePressed()) {
-			StdDraw.isMousePressed = false;
-
-			for (edge_data edge : (d.getE(src))) {
-
-				double x = d.getNode(edge.getDest()).getLocation().x();
-				double y = d.getNode(edge.getDest()).getLocation().y();
-
-				if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
-						&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
-
-					dest = d.getNode(edge.getDest()).getKey();
-				}
+	public void drawFirstFruits() {
+		for(Fruit f : d.fruitList) {
+			System.out.println(f.getType());
+			if(f.getType()==-1) {
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\banana.png" , 0.0003, 0.0001);
 			}
+			else if(f.getType()==1)	{
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\apple.png" , 0.0015, 0.001);
 		}
-		return dest;
+		}
+	}
+	//***************************ReDraw**********************************
+	private void reDrawFruits() {
+		for(Fruit fru : d.fruitList) {
+			if (fru.getType()==1)
+				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), "data\\apple.png" , 0.001, 0.001);
+
+			else
+				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), "data\\banana.png" , 0.001, 0.001);
+		}
 	}
 
-	//***************************Update Graph From JSON****************************************
-	private void updateGraph(game_service game) {
+	private void reDrawRobots() {
+		for (Robot ro : d.robotList) {
+			StdDraw.picture(ro.getPos().x(), ro.getPos().y(), "data\\robot.png" , 0.001, 0.001);
+		}
+	}
+
+	//***************************Redraw From JSON****************************************
+	private void reDrawGraph() {
+		Json_Updates ju = new Json_Updates(this);
 		drawEdges();
 		drawNodes();
-		updateFruits(game);
-		updateRobots(game);
+		ju.updateFruits();
+		ju.updateRobots();
+		reDrawFruits();
+		reDrawRobots();
 	}
-
-	private void updateRobots(game_service game) {
-		d.robotList.clear();
-		List<String> r = game.getRobots();
-		int i=0;
-		for(String rob : r) {
-			JSONObject line;
-			try {
-				line = new JSONObject(rob);
-				JSONObject jsonRob = line.getJSONObject("Robot");
-				Object p = jsonRob.getString("pos");
-				Point3D pos= new Point3D(p.toString());	
-				int src = jsonRob.getInt("src");
-				int dest = jsonRob.getInt("dest");
-				Robot roby = new Robot(1, src, dest, i, pos);
-				d.addRobot(roby);
-				i++;
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			for (Robot ro : d.robotList) {
-				StdDraw.picture(ro.getPos().x(), ro.getPos().y(), "data\\robot.png" , 0.001, 0.001);
-			}
-		}
-	}
-
-	private void updateFruits(game_service game) {
-		d.fruitList.clear();
-		List<String> f = game.getFruits();
-		for(String fruit : f) {
-			JSONObject line;
-			try {
-				line = new JSONObject(fruit);
-				JSONObject jsonRob = line.getJSONObject("Fruit");
-				Object p = jsonRob.getString("pos");
-				Point3D pos= new Point3D(p.toString());
-				int type = jsonRob.getInt("type");
-				double value = jsonRob.getInt("value");
-
-				Fruit fr = new Fruit(value, type, pos);
-				d.addFruit(fr);
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			for(Fruit fru : d.fruitList) {
-				if (fru.getType()==1)
-					StdDraw.picture(fru.getPos().x(), fru.getPos().y(), "data\\apple.png" , 0.001, 0.001);
-
-				else
-					StdDraw.picture(fru.getPos().x(), fru.getPos().y(), "data\\banana.png" , 0.001, 0.001);
-			}
-		}
-	}
-
-	//****************************Enter Game**************************
-	private void gui() {
-
-		String[] chooseGame = {"Manual game", "Auto game"};
-
-		Object selectedGame = JOptionPane.showInputDialog(null, "Choose a game mode", "Message",
-				JOptionPane.INFORMATION_MESSAGE, null, chooseGame, chooseGame[0]);
-
-		String level = JOptionPane.showInputDialog(null, "Choose a level 0-23");
-		game_service game = Game_Server.getServer(Integer.parseInt(level));
-		setGame(game);
-		initAndPaint();
-
-		if(selectedGame == "Manual game") {
-
-			if(d.getNumRobot() == 1) {
-				JOptionPane.showMessageDialog(null, "Choose place for the robot");
-			}
-			else {
-				JOptionPane.showMessageDialog(null, "Choose place for "+d.getNumRobot()+" robots");
-			}
-
-			addManualRobots();
-
-			game.startGame();
-			while(game.isRunning()){
-
-				moveRobots(game);
-				StdDraw.clear();
-				StdDraw.enableDoubleBuffering();
-				updateGraph(game);
-				printScore(game);
-				StdDraw.show();
-			}
-			JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
-		} 
-
-		else if(selectedGame == "Auto game") {
-			Game_Algo ga = new Game_Algo(this);	
-			ga.addAutoRobot();
-			game.startGame();
-
-			while(game.isRunning()) {
-				System.out.println("in");
-				System.out.println(game.getRobots());
-				ga.AutoNextNode(d.robotList);
-				StdDraw.clear();
-				StdDraw.enableDoubleBuffering();
-				updateGraph(game);
-				printScore(game);
-				StdDraw.show();
-
-			}
-			JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
-
-		}
-	}
-
 
 	//*************************Show Score****************************
-	public void printScore(game_service game) {
+	public void printScore() {
 		String results = game.toString();
 		long t = game.timeToEnd();
 		try {
@@ -407,14 +241,74 @@ public class MyGameGUI {
 		}
 	}
 
-	//***************************Auto Game Functions***********************************
+	//****************************Enter Game**************************
+	public void gui() {
 
-	//	private void setAutoDest() {
-	//for(Robot r: d.robotList) {
-	//	game.chooseNextEdge(r.getId(), AutoNextNode(r.getId()));
-	//	game.move();
-	//}
-	//	}
+		String[] chooseGame = {"Manual game", "Auto game"};
+
+		Object selectedGame = JOptionPane.showInputDialog(null, "Choose a game mode", "Message",
+				JOptionPane.INFORMATION_MESSAGE, null, chooseGame, chooseGame[0]);
+
+		String level = JOptionPane.showInputDialog(null, "Choose a level 0-23");
+		game_service game = Game_Server.getServer(Integer.parseInt(level));
+		setGame(game);
+		initAndPaint();
+
+		if(selectedGame == "Manual game") {
+			playManual();
+		} 
+
+		else if(selectedGame == "Auto game") {
+			playAuto();
+		}
+	}
+
+	//****************************************Threads***************************************
+	private void playManual() {
+		if(d.getNumRobot() == 1) {
+			JOptionPane.showMessageDialog(null, "Choose place for the robot");
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Choose place for "+d.getNumRobot()+" robots");
+		}
+		ManualGame mg = new ManualGame(this);
+		mg.addManualRobots();
+		game.startGame();
+		while(game.isRunning()){
+
+			mg.chooseRobot();
+			StdDraw.clear();
+			StdDraw.enableDoubleBuffering();
+			reDrawGraph();
+			printScore();
+			StdDraw.show();
+
+		}
+
+		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
+	}
+
+	private void playAuto() {
+
+
+		AutoGame ga = new AutoGame(this);
+
+		ga.addAutoRobot();
+		game.startGame();
+
+		while(game.isRunning()) {
+			ga.allFruitToEdges(d.fruitList);
+			ga.AutoNextNode(d.robotList);
+			StdDraw.clear();
+			StdDraw.enableDoubleBuffering();
+			reDrawGraph();
+			printScore();
+			StdDraw.show();
+
+		}
+		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
+
+	}
 
 
 	//***************************Getters & Setters***************************************
@@ -451,15 +345,5 @@ public class MyGameGUI {
 	}
 	public void setAlgo(Graph_Algo ga) {
 		this.gra = ga;
-	}
-	//***********************************Main************************************
-
-	public static void main(String[] a) {
-
-		MyGameGUI my = new MyGameGUI();
-		my.gui();
-
-
-
 	}
 }
