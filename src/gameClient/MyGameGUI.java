@@ -30,6 +30,10 @@ public class MyGameGUI {
 	private graph g;
 	private static double minX=0, maxX=0, minY=0, maxY=0;
 	private static int scoreInt ;
+	private String[] RobotsImg = {"data\\assaf.png","data\\yossef.png","data\\moshik.png"};
+	private String[] FruitImg = {"data\\donut.png","data\\pizza.png"};
+	private String[] GameImg = {"data\\x.png","data\\y.png"};
+
 
 	//***********************************Constructors********************************
 	/**
@@ -64,30 +68,22 @@ public class MyGameGUI {
 		this.g = gr;
 		this.gra.g = gr;
 	}
-	/**
-	 * Initialize the Graph_GUI from a string.
-	 * @param name - the given string, represent a saved graph.
-	 */
-	public void init(String name) {
-		this.gra.init(name);
-		this.g=gra.g;
-		drawFirstGraph();
-	}
 
-	public void initAndPaint(){
-		d.init(game);
+
+	public void initFromJson(Json_Updates ju){
+		ju.init(game);
 		init(d);
-		drawFirstGraph();
 	}
 	//***************************Draw Functions****************************
 	/**
 	 * The main paint function, drawing the whole graph.
 	 */
-	public void drawFirstGraph() {
+	public void drawFirstGraph(Json_Updates ju) {
 		drawCanvas();
 		drawEdges();
 		drawNodes();
-		drawFirstFruits();
+		ju.updateFruits();
+		reDrawFruits();
 	}
 
 	/**
@@ -97,7 +93,7 @@ public class MyGameGUI {
 	public void drawCanvas() {
 		Collection<node_data> points = g.getV();
 		if(points.isEmpty()) {
-			StdDraw.setCanvasSize(600,600);
+			StdDraw.setCanvasSize(1000,550);
 			StdDraw.setXscale(-150,150);
 			StdDraw.setYscale(-150,150);
 		}
@@ -128,19 +124,20 @@ public class MyGameGUI {
 			StdDraw.setCanvasSize((int)(Math.abs(minX)+Math.abs(maxX))+1000,(int)(Math.abs(minY)+Math.abs(maxY))+600);
 			StdDraw.setXscale(minX-0.001, maxX+0.001);
 			StdDraw.setYscale(minY-0.001, maxY+0.001);
+			StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[1]);
 		}
 	}
 	/**
 	 * This method paint all the nodes of the graph, with their key.
 	 */
 	public void drawNodes() {
-		StdDraw.setPenRadius(0.03);
+		StdDraw.setPenRadius(0.04);
 		Collection<node_data> points = g.getV();
 		for (node_data nodes : points) {
 			StdDraw.setPenColor(Color.BLUE);
 
 			StdDraw.point(nodes.getLocation().x(), nodes.getLocation().y());
-			StdDraw.setFont(new Font("Ariel", Font.ROMAN_BASELINE, 15));
+			StdDraw.setFont(new Font("Ariel", Font.BOLD, 17));
 			StdDraw.setPenColor(Color.BLACK);
 
 			StdDraw.text(nodes.getLocation().x(), nodes.getLocation().y()+0.0002, ""+ nodes.getKey());
@@ -160,7 +157,7 @@ public class MyGameGUI {
 				double y0= nodes.getLocation().y();
 				double x1= g.getNode(edge.getDest()).getLocation().x();
 				double y1= g.getNode(edge.getDest()).getLocation().y();
-				StdDraw.setPenRadius(0.005);
+				StdDraw.setPenRadius(0.01);
 
 				StdDraw.setPenColor(Color.RED);
 				StdDraw.line(x0, y0, x1, y1);
@@ -177,38 +174,28 @@ public class MyGameGUI {
 		}
 	}
 
-	//*********************Draw First Fruits & Robots***********************
-	public void drawFirstFruits() {
-		for(Fruit f : d.fruitList) {
-			System.out.println(f.getType());
-			if(f.getType()==-1) {
-				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\banana.png" , 0.0003, 0.0001);
-			}
-			else if(f.getType()==1)	{
-				StdDraw.picture(f.getPos().x(), f.getPos().y(),"data\\apple.png" , 0.0015, 0.001);
-		}
-		}
-	}
 	//***************************ReDraw**********************************
 	private void reDrawFruits() {
 		for(Fruit fru : d.fruitList) {
 			if (fru.getType()==1)
-				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), "data\\apple.png" , 0.001, 0.001);
+				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), FruitImg[0], 0.00075, 0.00075);
 
 			else
-				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), "data\\banana.png" , 0.001, 0.001);
+				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), FruitImg[1] , 0.00075, 0.00075);
 		}
 	}
 
 	private void reDrawRobots() {
+		int i=0;
 		for (Robot ro : d.robotList) {
-			StdDraw.picture(ro.getPos().x(), ro.getPos().y(), "data\\robot.png" , 0.001, 0.001);
+			StdDraw.picture(ro.getPos().x(), ro.getPos().y(), RobotsImg[i] , 0.002, 0.001);
+			i++;
 		}
 	}
 
 	//***************************Redraw From JSON****************************************
-	private void reDrawGraph() {
-		Json_Updates ju = new Json_Updates(this);
+	private void reDrawGraph(Json_Updates ju) {
+		StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[1]);
 		drawEdges();
 		drawNodes();
 		ju.updateFruits();
@@ -217,7 +204,7 @@ public class MyGameGUI {
 		reDrawRobots();
 	}
 
-	//*************************Show Score****************************
+	//*************************Show Texts****************************
 	public void printScore() {
 		String results = game.toString();
 		long t = game.timeToEnd();
@@ -233,8 +220,8 @@ public class MyGameGUI {
 			double tmp2 = maxY-minY;
 			StdDraw.setPenRadius(0.08);
 			StdDraw.setPenColor(Color.BLACK);
-			StdDraw.text(minX+tmp1/1.05 , minY+tmp2/0.95, countDown);
-			StdDraw.text(minX+tmp1/1.05 , minY+tmp2, scoreStr);
+			StdDraw.text(minX+tmp1/1.15 , minY+tmp2/0.95, countDown);
+			StdDraw.text(minX+tmp1/1.02 , minY+tmp2/0.95, scoreStr);
 
 		}catch (Exception e) {
 			System.out.println("Failed to print score");
@@ -248,48 +235,60 @@ public class MyGameGUI {
 
 		Object selectedGame = JOptionPane.showInputDialog(null, "Choose a game mode", "Message",
 				JOptionPane.INFORMATION_MESSAGE, null, chooseGame, chooseGame[0]);
-
+		if(selectedGame==null) { 
+			drawCanvas();
+			StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[0]);	
+			return;
+		}
 		String level = JOptionPane.showInputDialog(null, "Choose a level 0-23");
+		if(level==null) {
+			drawCanvas();
+			StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[0]);		
+			return;
+		}
 		game_service game = Game_Server.getServer(Integer.parseInt(level));
 		setGame(game);
-		initAndPaint();
+
+		Json_Updates ju = new Json_Updates(this);
+		initFromJson(ju);
+		drawFirstGraph(ju);
 
 		if(selectedGame == "Manual game") {
-			playManual();
+
+			playManual(ju);
 		} 
 
 		else if(selectedGame == "Auto game") {
-			playAuto();
+			playAuto(ju);
 		}
 	}
 
-	//****************************************Threads***************************************
-	private void playManual() {
+	//****************************************Play***************************************
+	private void playManual(Json_Updates ju) {
 		if(d.getNumRobot() == 1) {
-			JOptionPane.showMessageDialog(null, "Choose place for the robot");
+			JOptionPane.showMessageDialog(null, "Choose place for the player");
 		}
 		else {
 			JOptionPane.showMessageDialog(null, "Choose place for "+d.getNumRobot()+" robots");
 		}
+		JOptionPane.showMessageDialog(null, "Choose player with the keyboard \n and click on the wanted node to make a move.");
 		ManualGame mg = new ManualGame(this);
 		mg.addManualRobots();
+		
 		game.startGame();
 		while(game.isRunning()){
 
 			mg.chooseRobot();
 			StdDraw.clear();
 			StdDraw.enableDoubleBuffering();
-			reDrawGraph();
+			reDrawGraph(ju);
 			printScore();
 			StdDraw.show();
-
 		}
-
 		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
 	}
 
-	private void playAuto() {
-
+	private void playAuto(Json_Updates ju) {
 
 		AutoGame ga = new AutoGame(this);
 
@@ -301,13 +300,11 @@ public class MyGameGUI {
 			ga.AutoNextNode(d.robotList);
 			StdDraw.clear();
 			StdDraw.enableDoubleBuffering();
-			reDrawGraph();
+			reDrawGraph(ju);
 			printScore();
 			StdDraw.show();
-
 		}
 		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
-
 	}
 
 

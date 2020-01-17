@@ -68,8 +68,6 @@ public class AutoGame {
 	}
 
 	public void FruitToEdge(Fruit f) {
-
-
 		for(edge_data edge : d.allEdges) {
 			int src=-2;
 			int dest = -2;
@@ -92,11 +90,8 @@ public class AutoGame {
 				}
 			}
 			double disNodes = d.getNode(src).getLocation().distance2D(d.getNode(dest).getLocation());
-			//System.out.println(disNodes+"edge");
 			double dis2f = d.getNode(src).getLocation().distance2D(f.getPos());
-			//	System.out.println(dis2f+"src to f");
 			double dis4f = d.getNode(dest).getLocation().distance2D(f.getPos());
-			//	System.out.println(dis4f+"dest to f");
 
 			if(((disNodes - (dis2f+dis4f))<=EPSILON) && ((disNodes - (dis2f+dis4f))>=(EPSILON*-1))){
 				f.setSrc(src);
@@ -120,12 +115,9 @@ public class AutoGame {
 
 
 	public void AutoNextNode(List<Robot> list) {
-		for(Fruit f : d.fruitList) {
-			System.out.println(f.getSrc());
-			System.out.println(f.getDest());
-		}
-		Fruit closest = null;
-		double SP = Double.MAX_VALUE;
+
+		Fruit topWorth = null;
+		double TP = Double.MAX_VALUE;
 		double temp = 0;
 		int nextEdge = 0;
 		ArrayList<node_data> nodeList = new ArrayList<node_data>();
@@ -133,16 +125,16 @@ public class AutoGame {
 			for(Fruit f : my.getDgraph().fruitList) {
 
 				temp = my.getAlgo().shortestPathDist(r.getSrc(), f.getSrc());
-				if(temp<SP) {
-					SP = temp;
-					closest = f;
+				if(temp/f.getValue()<TP/f.getValue()) {
+					TP = temp;
+					topWorth = f;
 				}
 			}
-			if(r.getSrc()==closest.getSrc()) {
-				game.chooseNextEdge(r.getId(), closest.getDest());
+			if(r.getSrc()==topWorth.getSrc()) {
+				game.chooseNextEdge(r.getId(), topWorth.getDest());
 			}
 			else {
-				nodeList = (ArrayList<node_data>) my.getAlgo().shortestPath(r.getSrc(), closest.getSrc());	
+				nodeList = (ArrayList<node_data>) my.getAlgo().shortestPath(r.getSrc(), topWorth.getSrc());	
 				nextEdge = nodeList.get(1).getKey();
 				game.chooseNextEdge(r.getId(), nextEdge);
 			}

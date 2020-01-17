@@ -1,13 +1,16 @@
 package gameClient;
 
+import java.util.Iterator;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import Server.Game_Server;
 import Server.game_service;
 import dataStructure.DGraph;
+import dataStructure.Node;
 import elements.Fruit;
 import elements.Robot;
 import utils.Point3D;
@@ -20,6 +23,46 @@ public class Json_Updates {
 public Json_Updates(MyGameGUI my) {
 	this.d = my.getDgraph();
 	this.game = my.getGame();
+}
+public void init(game_service game) {
+	String info = game.toString();//Game stats.
+	String g = game.getGraph();//The graph of this game.
+	JSONObject line;
+	try {
+		line = new JSONObject(g);
+		//adding nodes.
+		JSONArray nodeArray =  line.getJSONArray("Nodes");
+		for (int i = 0; i < nodeArray.length(); i++) {
+			JSONObject jsoNode = nodeArray.getJSONObject(i);
+			Object p = jsoNode.getString("pos");
+			Point3D pos= new Point3D(p.toString());
+			int id = jsoNode.getInt("id");
+
+			d.addNode(new Node(id, pos, 0, "", 0));
+		}
+
+		//adding edges.
+		JSONArray edgeArray = line.getJSONArray("Edges");
+		for (int i = 0; i < edgeArray.length(); i++) {
+			JSONObject jsonEdge = edgeArray.getJSONObject(i);
+			int src = jsonEdge.getInt("src");
+			int dest = jsonEdge.getInt("dest");
+			double w = jsonEdge.getDouble("w");
+
+			d.connect(src, dest, w);
+		}
+		//get number of robots
+		JSONObject line2 = new JSONObject(info);
+		JSONObject gameServerLine = line2.getJSONObject("GameServer");
+		int rs = gameServerLine.getInt("robots");
+		d.setNumRobot(rs);
+		
+		
+
+	}
+	catch (JSONException e){
+	e.printStackTrace();
+	}
 }
 
 public void updateRobots() {

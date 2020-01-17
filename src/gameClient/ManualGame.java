@@ -17,6 +17,7 @@ public class ManualGame {
 	private DGraph d = new DGraph();
 	double EPSILON = 0.0005;
 	private game_service game = Game_Server.getServer(17); // you have [0,23] games.
+	private String[] RobotsImg = {"data\\assaf.png","data\\yossef.png","data\\moshik.png"};
 
 
 	public ManualGame(MyGameGUI my) {
@@ -77,7 +78,7 @@ public class ManualGame {
 					if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
 							&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
 
-						StdDraw.picture(x, y, "data\\robot.png" , 0.001, 0.001);
+						StdDraw.picture(x, y, RobotsImg[i-1] , 0.001, 0.001);
 						Point3D p = new Point3D(x,y);
 						Robot r = new Robot(1, nodes.getKey(), -1, i, p);
 						game.addRobot(r.getSrc());

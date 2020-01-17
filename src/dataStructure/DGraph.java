@@ -79,62 +79,6 @@ public class DGraph implements Serializable,graph {
 		mc++;
 	}
 
-	public void init(game_service game) {
-		String info = game.toString();//Game stats.
-		String g = game.getGraph();//The graph of this game.
-		JSONObject line;
-		try {
-			line = new JSONObject(g);
-			//adding nodes.
-			JSONArray nodeArray =  line.getJSONArray("Nodes");
-			for (int i = 0; i < nodeArray.length(); i++) {
-				JSONObject jsoNode = nodeArray.getJSONObject(i);
-				Object p = jsoNode.getString("pos");
-				Point3D pos= new Point3D(p.toString());
-				int id = jsoNode.getInt("id");
-
-				this.addNode(new Node(id, pos, 0, "", 0));
-			}
-
-			//adding edges.
-			JSONArray edgeArray = line.getJSONArray("Edges");
-			for (int i = 0; i < edgeArray.length(); i++) {
-				JSONObject jsonEdge = edgeArray.getJSONObject(i);
-				int src = jsonEdge.getInt("src");
-				int dest = jsonEdge.getInt("dest");
-				double w = jsonEdge.getDouble("w");
-
-				this.connect(src, dest, w);
-			}
-
-			//adding Fruits.
-			Iterator<String> f_iter = game.getFruits().iterator();
-			while(f_iter.hasNext()) {
-				String f = f_iter.next();
-				JSONObject fruitLine = new JSONObject(f);
-				JSONObject currentFruit = fruitLine.getJSONObject("Fruit");
-				double value = currentFruit.getDouble("value");
-				int type = currentFruit.getInt("type");
-				Object p = currentFruit.getString("pos");
-				Point3D pos= new Point3D(p.toString());
-
-				this.addFruit(new Fruit(value, type, pos));
-			}
-
-			//get number of robots
-			JSONObject line2 = new JSONObject(info);
-			JSONObject gameServerLine = line2.getJSONObject("GameServer");
-			int rs = gameServerLine.getInt("robots");
-			this.setNumRobot(rs);
-			
-			
-
-		}
-		catch (JSONException e){
-		e.printStackTrace();
-		}
-	}
-
 	@Override
 	public Collection<node_data> getV() {
 		return nodes.values();
