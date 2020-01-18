@@ -55,28 +55,31 @@ public class MyGameGUI {
 		gra.init(this.g);
 		this.d = (DGraph) g;
 		StdDraw.setGui(this);
-
 	}
+	//*****************************Initializes********************************
+
 	/**
 	 * Initialize the Graph_GUI from given graph.
 	 * @param gr - the given graph.
 	 */
 
-	//*****************************Initializes********************************
-
 	public void init(graph gr) {
 		this.g = gr;
 		this.gra.g = gr;
 	}
-
-
+	/**
+	 * Initialize this GUI from a Json_Updates object,
+	 * mirroring this graph from the game server.
+	 * @param ju
+	 */
 	public void initFromJson(Json_Updates ju){
 		ju.init(game);
 		init(d);
 	}
+	
 	//***************************Draw Functions****************************
 	/**
-	 * The main paint function, drawing the whole graph.
+	 * The main paint function, drawing the whole graph, with edges, nodes and fruits.
 	 */
 	public void drawFirstGraph(Json_Updates ju) {
 		drawCanvas();
@@ -144,7 +147,7 @@ public class MyGameGUI {
 		}
 	}
 	/**
-	 * This method paints all the edges of the graph, with their weight and destination.
+	 * This method paints all the edges of the graph, with their weights.
 	 */
 	public void drawEdges() {
 
@@ -174,7 +177,24 @@ public class MyGameGUI {
 		}
 	}
 
-	//***************************ReDraw**********************************
+	//***************************Redraw From JSON****************************************
+	/**
+	 * The main reDraw method.
+	 * updating all the aspects of the game on the gui.
+	 * @param ju
+	 */
+	private void reDrawGraph(Json_Updates ju) {
+		StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[1]);
+		drawEdges();
+		drawNodes();
+		ju.updateFruits();
+		ju.updateRobots();
+		reDrawFruits();
+		reDrawRobots();
+	}	
+	/**
+	 * Method that is used to update the fruits situation on the graph during the game.
+	 */
 	private void reDrawFruits() {
 		for(Fruit fru : d.fruitList) {
 			if (fru.getType()==1)
@@ -184,7 +204,9 @@ public class MyGameGUI {
 				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), FruitImg[1] , 0.00075, 0.00075);
 		}
 	}
-
+	/**
+	 * Method that is used to update the robots situation on the graph during the game.
+	 */
 	private void reDrawRobots() {
 		int i=0;
 		for (Robot ro : d.robotList) {
@@ -193,18 +215,10 @@ public class MyGameGUI {
 		}
 	}
 
-	//***************************Redraw From JSON****************************************
-	private void reDrawGraph(Json_Updates ju) {
-		StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[1]);
-		drawEdges();
-		drawNodes();
-		ju.updateFruits();
-		ju.updateRobots();
-		reDrawFruits();
-		reDrawRobots();
-	}
-
 	//*************************Show Texts****************************
+	/**
+	 * Prints the current left time and score during the game.
+	 */
 	public void printScore() {
 		String results = game.toString();
 		long t = game.timeToEnd();
@@ -229,6 +243,11 @@ public class MyGameGUI {
 	}
 
 	//****************************Enter Game**************************
+	/**
+	 * The main GAME method.
+	 * asks the player which game mode a game level he wants to play,
+	 * setting the graph by his choice, and calls the Manual\Auto game methods.
+	 */
 	public void gui() {
 
 		String[] chooseGame = {"Manual game", "Auto game"};
@@ -263,7 +282,12 @@ public class MyGameGUI {
 		}
 	}
 
-	//****************************************Play***************************************
+	//****************************************Play Modes***************************************
+	/**
+	 * This method gives the player the ability to play manually,
+	 * place the robots and moving them as he wish.
+	 * @param ju
+	 */
 	private void playManual(Json_Updates ju) {
 		if(d.getNumRobot() == 1) {
 			JOptionPane.showMessageDialog(null, "Choose place for the player");
@@ -287,7 +311,10 @@ public class MyGameGUI {
 		}
 		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
 	}
-
+/**
+ * This method allows the player to see the game played automatically.
+ * @param ju
+ */
 	private void playAuto(Json_Updates ju) {
 
 		AutoGame ga = new AutoGame(this);
@@ -318,19 +345,27 @@ public class MyGameGUI {
 	public void setGraph(graph g) {
 		this.g = g;
 	}
-
+	/**
+	 * @return the DGraph of the GUI_Graph.
+	 */
 	public DGraph getDgraph() {
 		return d;
 	}
-
+	/**
+	 * set the graph of the GUI_Graph.
+	 */
 	public void setDgraph(graph g) {
 		this.d = (DGraph) g;
 	}
-
+	/**
+	 * @return the game of the GUI_Graph.
+	 */
 	public game_service getGame() {
 		return game;
 	}
-
+	/**
+	 * set the game of the GUI_Graph.
+	 */
 	public void setGame(game_service game) {
 		this.game = game;
 	}
@@ -340,6 +375,9 @@ public class MyGameGUI {
 	public Graph_Algo getAlgo() {
 		return gra;
 	}
+	/**
+	 * set the Game_Algo of the GUI_Graph.
+	 */
 	public void setAlgo(Graph_Algo ga) {
 		this.gra = ga;
 	}

@@ -19,12 +19,51 @@ public class ManualGame {
 	private game_service game = Game_Server.getServer(17); // you have [0,23] games.
 	private String[] RobotsImg = {"data\\assaf.png","data\\yossef.png","data\\moshik.png"};
 
-
+/**
+ * A constructor that gets MyGameGUI object as an argument and set the parameters bt it.
+ * @param my
+ */
 	public ManualGame(MyGameGUI my) {
 		this.d = my.getDgraph();
 		this.game = my.getGame();
 	}
 
+	/**
+	 * Method thats allow the player to locate the robots before the game starts,
+	 * by clicking on the screen.
+	 */
+	public void addManualRobots() {
+		int i=0;
+		int num = d.getNumRobot();
+		while(i<num) {
+			if(StdDraw.isMousePressed()) {
+				StdDraw.isMousePressed = false;
+
+				Collection<node_data> point = d.getV();
+
+				for (node_data nodes : point) {
+
+					double x = nodes.getLocation().x();
+					double y = nodes.getLocation().y();
+
+					if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
+							&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
+
+						StdDraw.picture(x, y, RobotsImg[i] , 0.001, 0.001);
+						Point3D p = new Point3D(x,y);
+						Robot r = new Robot(1, nodes.getKey(), -1, i, p);
+						game.addRobot(r.getSrc());
+						d.addRobot(r);
+						i++;
+					}
+				}
+			}		
+		}
+	}
+	/**
+	 * Method to allow the player to control a specific robot,
+	 * using the keyboard.
+	 */
 	public void chooseRobot() {
 		int rCount = d.getNumRobot();
 		if(StdDraw.isKeyPressed(KeyEvent.VK_1)) {
@@ -40,7 +79,12 @@ public class ManualGame {
 		game.chooseNextEdge(d.robotList.get(robPoint).getId(), newDest);
 		game.move();
 	}
-
+/**
+ * This method checks if the player clicked on a valid node,
+ * a valid node is a node that is a neighbor of the current node.
+ * @param src - the current node.
+ * @return
+ */
 	private int checkIfNext(int src) {
 		int dest=-2;
 		if(StdDraw.isMousePressed()) {
@@ -60,33 +104,5 @@ public class ManualGame {
 		}
 		return dest;
 	}
-
-	public void addManualRobots() {
-		int i=1;
-		int num = d.getNumRobot();
-		while(i<=num) {
-			if(StdDraw.isMousePressed()) {
-				StdDraw.isMousePressed = false;
-
-				Collection<node_data> point = d.getV();
-
-				for (node_data nodes : point) {
-
-					double x = nodes.getLocation().x();
-					double y = nodes.getLocation().y();
-
-					if((StdDraw.mouseX()-EPSILON <= x)&&(x<= StdDraw.mouseX()+EPSILON) 
-							&& (StdDraw.mouseY()-EPSILON<=y)&&(y<=StdDraw.mouseY()+EPSILON)) {
-
-						StdDraw.picture(x, y, RobotsImg[i-1] , 0.001, 0.001);
-						Point3D p = new Point3D(x,y);
-						Robot r = new Robot(1, nodes.getKey(), -1, i, p);
-						game.addRobot(r.getSrc());
-						d.addRobot(r);
-						i++;
-					}
-				}
-			}		
-		}
-	}
+	
 }

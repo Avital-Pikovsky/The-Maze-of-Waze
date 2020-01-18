@@ -1,6 +1,5 @@
 package gameClient;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -20,10 +19,22 @@ public class Json_Updates {
 	private DGraph d = new DGraph();
 	private game_service game = Game_Server.getServer(17); // you have [0,23] games.
 	
+	
+	//******************constructors*************************
+	/**
+	 * A constructor thats get MyGameGUI object and set the parameters by it.
+	 * @param my
+	 */
 public Json_Updates(MyGameGUI my) {
 	this.d = my.getDgraph();
 	this.game = my.getGame();
 }
+
+/**
+ * This method initializes a Graph from a game json file,
+ * extracting the edges, nodes and the number of robots.
+ * @param game
+ */
 public void init(game_service game) {
 	String info = game.toString();//Game stats.
 	String g = game.getGraph();//The graph of this game.
@@ -48,7 +59,6 @@ public void init(game_service game) {
 			int src = jsonEdge.getInt("src");
 			int dest = jsonEdge.getInt("dest");
 			double w = jsonEdge.getDouble("w");
-
 			d.connect(src, dest, w);
 		}
 		//get number of robots
@@ -57,14 +67,16 @@ public void init(game_service game) {
 		int rs = gameServerLine.getInt("robots");
 		d.setNumRobot(rs);
 		
-		
-
 	}
 	catch (JSONException e){
 	e.printStackTrace();
 	}
 }
 
+/**
+ * This method extracts the current robots situation from the game json
+ *  and adding it to the graph.
+ */
 public void updateRobots() {
 	d.robotList.clear();
 	List<String> r = game.getRobots();
@@ -86,7 +98,10 @@ public void updateRobots() {
 		}
 	}
 }
-
+/**
+ * This method extracts the current fruits situation from the game json
+ *  and adding it to the graph.
+ */
 public void updateFruits() {
 	d.fruitList.clear();
 	List<String> f = game.getFruits();

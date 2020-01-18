@@ -21,52 +21,80 @@ public class AutoGame {
 
 	//*********************Constructors*************************
 
-
+/**
+ * Default constructor, create new AutoGame with empty parameters.
+ */
 	public AutoGame() {
 		this.d = new DGraph();
 		this.my = new MyGameGUI();
 	}
-
+/**
+ * Constructor that gets MyGameGUI and set the parameters by it.
+ * @param my
+ */
 	public AutoGame(MyGameGUI my) {
 		this.my = my;
 		this.d = my.getDgraph();
 		this.game = my.getGame();
 	}
-
+/**
+ * Set this MyGameGui param from a given one.
+ * @param g
+ */
 	public void setGui(MyGameGUI g) {
 		my = g;
 	}
-
-	public MyGameGUI getMy() {
+/**
+ * Method to get this GUI.
+ * @return
+ */
+	public MyGameGUI getGUI() {
 		return my;
 	}
-
-	public void setMy(MyGameGUI my) {
-		this.my = my;
-	}
-
+/**
+ * Method to get this game.
+ * @return
+ */
 	public game_service getGame() {
 		return game;
 	}
-
+	/**
+	 * Set this game param from a given one.
+	 * @param g
+	 */
 	public void setGame(game_service game) {
 		this.game = game;
 	}
-
+/**
+ * Method to get this DGraph.
+ * @return
+ */
 	public DGraph getD() {
 		return d;
 	}
-
+	/**
+	 * Set this d param from a given one.
+	 * @param g
+	 */
 	public void setD(DGraph d) {
 		this.d = d;
 	}
 
+	/**
+	 * This method set a source and destination for a list of fruits.
+	 * @param list - list of the graph fruits.
+	 */
 	public void allFruitToEdges(List<Fruit> list) {
 		for(Fruit f : list) {
 			FruitToEdge(f);
 		}
 	}
-
+/**
+ * This method gets a fruit as an arguments,
+ * looping on the graph edges, and with math formula decides on which edge
+ * that fruit exist.
+ * @param f
+ */
 	public void FruitToEdge(Fruit f) {
 		for(edge_data edge : d.allEdges) {
 			int src=-2;
@@ -100,7 +128,9 @@ public class AutoGame {
 		}
 	}
 
-
+/**
+ * Method that locates each robot near a fruit before the start of the game.
+ */
 	public void addAutoRobot() {
 		int src =0;
 		int dest =0;
@@ -113,7 +143,12 @@ public class AutoGame {
 		}
 	}
 
-
+/**
+ * Method that decides each robot next move throughout the game.
+ * The purpose of this method is to eat as many fruits in the most efficient way,
+ * calculating the shortest paths and considering the other robots in the way.
+ * @param list - list of the game robots.
+ */
 	public void AutoNextNode(List<Robot> list) {
 
 		Fruit topWorth = null;
