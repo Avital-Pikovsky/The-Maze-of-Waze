@@ -11,7 +11,13 @@ import dataStructure.node_data;
 import elements.Robot;
 import utils.Point3D;
 import utils.StdDraw;
-
+/**
+ * This class represents the manual game mode.
+ * It allows the player to choose the start locations of the of the robots,
+ * and to move them around on the graph, eating them and follow his score throughout the game.
+ * @author Avital Pikovsky && Omer Katz
+ *
+ */
 public class ManualGame {
 	private static int robPoint = 0;
 	private DGraph d = new DGraph();

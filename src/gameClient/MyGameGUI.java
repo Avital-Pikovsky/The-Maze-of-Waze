@@ -3,12 +3,8 @@ package gameClient;
 
 import java.awt.Color;
 import java.awt.Font;
-
 import java.util.Collection;
-
-
 import javax.swing.JOptionPane;
-
 import org.json.JSONObject;
 import Server.Game_Server;
 import Server.game_service;
@@ -22,6 +18,16 @@ import elements.Robot;
 import utils.StdDraw;
 import gameClient.AutoGame;
 
+
+/**
+ * This is the main GUI class.
+ * All the painting methods take place here.
+ * After updating the graph from json file throu the JSON_UPDATES class,
+ * it draws all the aspects of the game: Robots, fruits, canvas, edges and nodes.
+ * It also shows the current time, score and details of the game.
+ * @author Avital Pikovsky && Omer Katz
+ *
+ */
 public class MyGameGUI {
 	private DGraph d = new DGraph();
 	double EPSILON = 0.0005;
@@ -33,6 +39,8 @@ public class MyGameGUI {
 	private String[] RobotsImg = {"data\\assaf.png","data\\yossef.png","data\\moshik.png"};
 	private String[] FruitImg = {"data\\donut.png","data\\pizza.png"};
 	private String[] GameImg = {"data\\x.png","data\\y.png"};
+	private static KML_Logger kl;
+	private static int game_num;
 
 
 	//***********************************Constructors********************************
@@ -76,7 +84,7 @@ public class MyGameGUI {
 		ju.init(game);
 		init(d);
 	}
-	
+
 	//***************************Draw Functions****************************
 	/**
 	 * The main paint function, drawing the whole graph, with edges, nodes and fruits.
@@ -134,7 +142,7 @@ public class MyGameGUI {
 	 * This method paint all the nodes of the graph, with their key.
 	 */
 	public void drawNodes() {
-		StdDraw.setPenRadius(0.04);
+		StdDraw.setPenRadius(0.025);
 		Collection<node_data> points = g.getV();
 		for (node_data nodes : points) {
 			StdDraw.setPenColor(Color.BLUE);
@@ -160,7 +168,7 @@ public class MyGameGUI {
 				double y0= nodes.getLocation().y();
 				double x1= g.getNode(edge.getDest()).getLocation().x();
 				double y1= g.getNode(edge.getDest()).getLocation().y();
-				StdDraw.setPenRadius(0.01);
+				StdDraw.setPenRadius(0.005);
 
 				StdDraw.setPenColor(Color.RED);
 				StdDraw.line(x0, y0, x1, y1);
@@ -197,11 +205,14 @@ public class MyGameGUI {
 	 */
 	private void reDrawFruits() {
 		for(Fruit fru : d.fruitList) {
-			if (fru.getType()==1)
+			if (fru.getType()==1) {
+                kl.Place_Mark("fruit_1",fru.getPos().toString());
 				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), FruitImg[0], 0.00075, 0.00075);
-
-			else
+			}
+			else {
+              kl.Place_Mark("fruit_-1",fru.getPos().toString());
 				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), FruitImg[1] , 0.00075, 0.00075);
+			}
 		}
 	}
 	/**
@@ -210,12 +221,22 @@ public class MyGameGUI {
 	private void reDrawRobots() {
 		int i=0;
 		for (Robot ro : d.robotList) {
+			kl.Place_Mark("data/assaf.png",ro.getPos().toString());
 			StdDraw.picture(ro.getPos().x(), ro.getPos().y(), RobotsImg[i] , 0.002, 0.001);
 			i++;
 		}
 	}
 
 	//*************************Show Texts****************************
+	/**
+	 * Show description on the gui.
+	 */
+	private void showDescription() {
+		if(d.getNumRobot()>1)
+			StdDraw.text(minX+(maxX-minX)/1.1 , minY+(maxY-minY)/1, "Pick a player with the keyboard");
+	}
+
+
 	/**
 	 * Prints the current left time and score during the game.
 	 */
@@ -259,15 +280,19 @@ public class MyGameGUI {
 			StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[0]);	
 			return;
 		}
-		String level = JOptionPane.showInputDialog(null, "Choose a level 0-23");
-		if(level==null) {
-			drawCanvas();
-			StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[0]);		
-			return;
+		String[] arr = new String[24];
+		for(int j=0; j<24;j++) {
+			arr[j] = j+"";
 		}
-		game_service game = Game_Server.getServer(Integer.parseInt(level));
-		setGame(game);
+		Object cGame = JOptionPane.showInputDialog(null, "Choose a level 0-23", "Message",
+				JOptionPane.INFORMATION_MESSAGE, null, arr, arr[0]);
+		if(cGame==null) return;
+		game_num = Integer.parseInt(cGame.toString());
+		kl = new KML_Logger(game_num);
 
+		game_service game = Game_Server.getServer(Integer.parseInt((String) cGame));
+		setGame(game);
+		
 		Json_Updates ju = new Json_Updates(this);
 		initFromJson(ju);
 		drawFirstGraph(ju);
@@ -279,6 +304,7 @@ public class MyGameGUI {
 
 		else if(selectedGame == "Auto game") {
 			playAuto(ju);
+			kl.KML_Stop();
 		}
 	}
 
@@ -298,7 +324,6 @@ public class MyGameGUI {
 		JOptionPane.showMessageDialog(null, "Choose player with the keyboard \n and click on the wanted node to make a move.");
 		ManualGame mg = new ManualGame(this);
 		mg.addManualRobots();
-		
 		game.startGame();
 		while(game.isRunning()){
 
@@ -307,14 +332,15 @@ public class MyGameGUI {
 			StdDraw.enableDoubleBuffering();
 			reDrawGraph(ju);
 			printScore();
+			showDescription();
 			StdDraw.show();
 		}
 		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
 	}
-/**
- * This method allows the player to see the game played automatically.
- * @param ju
- */
+	/**
+	 * This method allows the player to see the game played automatically.
+	 * @param ju
+	 */
 	private void playAuto(Json_Updates ju) {
 
 		AutoGame ga = new AutoGame(this);
@@ -333,8 +359,7 @@ public class MyGameGUI {
 		}
 		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
 	}
-
-
+	
 	//***************************Getters & Setters***************************************
 	/**
 	 * @return the graph of the GUI_Graph.
@@ -342,6 +367,9 @@ public class MyGameGUI {
 	public graph getGraph() {
 		return g;
 	}
+	/**
+	 * set the graph of the GUI_Graph.
+	 */
 	public void setGraph(graph g) {
 		this.g = g;
 	}
@@ -352,7 +380,7 @@ public class MyGameGUI {
 		return d;
 	}
 	/**
-	 * set the graph of the GUI_Graph.
+	 * set the DGraph of the GUI_Graph.
 	 */
 	public void setDgraph(graph g) {
 		this.d = (DGraph) g;
@@ -380,5 +408,17 @@ public class MyGameGUI {
 	 */
 	public void setAlgo(Graph_Algo ga) {
 		this.gra = ga;
+	}
+	/**
+	 * @return the Kml of the GUI_Graph.
+	 */
+	public KML_Logger getK() {
+		return kl;
+	}
+	/**
+	 * set the Kml of the GUI_Graph.
+	 */
+	public void setK(KML_Logger k) {
+		this.kl = k;
 	}
 }

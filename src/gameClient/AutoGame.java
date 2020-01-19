@@ -11,50 +11,56 @@ import dataStructure.edge_data;
 import dataStructure.node_data;
 import elements.Fruit;
 import elements.Robot;
-
+/**
+ * This class represent the auto game mode,
+ * it contains algorithms that suppose to maximize the score on each stage of the game.
+ * It places the robots on the best starters positions, near the fruits,
+ * and move them on the graph towards the next fruits.
+ * @author Avital Pikovsky & Omer Katz
+ *
+ */
 public class AutoGame {
 	private MyGameGUI my = new MyGameGUI();
 	double EPSILON = 0.00000001;
 	private game_service game = Game_Server.getServer(17);
 	private DGraph d = new DGraph();
 
-
 	//*********************Constructors*************************
 
-/**
- * Default constructor, create new AutoGame with empty parameters.
- */
+	/**
+	 * Default constructor, create new AutoGame with empty parameters.
+	 */
 	public AutoGame() {
 		this.d = new DGraph();
 		this.my = new MyGameGUI();
 	}
-/**
- * Constructor that gets MyGameGUI and set the parameters by it.
- * @param my
- */
+	/**
+	 * Constructor that gets MyGameGUI and set the parameters by it.
+	 * @param my
+	 */
 	public AutoGame(MyGameGUI my) {
 		this.my = my;
 		this.d = my.getDgraph();
 		this.game = my.getGame();
 	}
-/**
- * Set this MyGameGui param from a given one.
- * @param g
- */
+	/**
+	 * Set this MyGameGui param from a given one.
+	 * @param g
+	 */
 	public void setGui(MyGameGUI g) {
 		my = g;
 	}
-/**
- * Method to get this GUI.
- * @return
- */
+	/**
+	 * Method to get this GUI.
+	 * @return
+	 */
 	public MyGameGUI getGUI() {
 		return my;
 	}
-/**
- * Method to get this game.
- * @return
- */
+	/**
+	 * Method to get this game.
+	 * @return
+	 */
 	public game_service getGame() {
 		return game;
 	}
@@ -65,10 +71,10 @@ public class AutoGame {
 	public void setGame(game_service game) {
 		this.game = game;
 	}
-/**
- * Method to get this DGraph.
- * @return
- */
+	/**
+	 * Method to get this DGraph.
+	 * @return
+	 */
 	public DGraph getD() {
 		return d;
 	}
@@ -89,12 +95,12 @@ public class AutoGame {
 			FruitToEdge(f);
 		}
 	}
-/**
- * This method gets a fruit as an arguments,
- * looping on the graph edges, and with math formula decides on which edge
- * that fruit exist.
- * @param f
- */
+	/**
+	 * This method gets a fruit as an arguments,
+	 * looping on the graph edges, and with math formula decides on which edge
+	 * that fruit exist.
+	 * @param f
+	 */
 	public void FruitToEdge(Fruit f) {
 		for(edge_data edge : d.allEdges) {
 			int src=-2;
@@ -128,9 +134,9 @@ public class AutoGame {
 		}
 	}
 
-/**
- * Method that locates each robot near a fruit before the start of the game.
- */
+	/**
+	 * Method that locates each robot near a fruit before the start of the game.
+	 */
 	public void addAutoRobot() {
 		int src =0;
 		int dest =0;
@@ -143,12 +149,12 @@ public class AutoGame {
 		}
 	}
 
-/**
- * Method that decides each robot next move throughout the game.
- * The purpose of this method is to eat as many fruits in the most efficient way,
- * calculating the shortest paths and considering the other robots in the way.
- * @param list - list of the game robots.
- */
+	/**
+	 * Method that decides each robot next move throughout the game.
+	 * The purpose of this method is to eat as many fruits in the most efficient way,
+	 * calculating the shortest paths and considering the other robots in the way.
+	 * @param list - list of the game robots.
+	 */
 	public void AutoNextNode(List<Robot> list) {
 
 		Fruit topWorth = null;
@@ -160,7 +166,7 @@ public class AutoGame {
 			for(Fruit f : my.getDgraph().fruitList) {
 
 				temp = my.getAlgo().shortestPathDist(r.getSrc(), f.getSrc());
-				if(temp/f.getValue()<TP/f.getValue()) {
+				if(temp<TP){
 					TP = temp;
 					topWorth = f;
 				}
