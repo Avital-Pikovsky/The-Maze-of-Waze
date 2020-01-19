@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * The files can be pressented on the google earth app.
  * All the locations of the robots and fruits are saved on this kml file furing the game. 
  */
-class KML_Logger {
+public class KML_Logger {
 	/**
 	 * private data types of the class
 	 * int level
@@ -20,7 +20,7 @@ class KML_Logger {
 	private StringBuffer str;
 
 	//*****************constructors*********************
-	KML_Logger(int level) {
+	public KML_Logger(int level) {
 		this.level = level;
 		str = new StringBuffer();
 		KML_Play();
@@ -113,7 +113,7 @@ class KML_Logger {
 	private void SaveFile(){
 		try
 		{
-			File file=new File("data/"+level+".kml");
+			File file=new File("Kml/"+level+".kml");
 			PrintWriter pw=new PrintWriter(file);
 			pw.write(str.toString());
 			pw.close();

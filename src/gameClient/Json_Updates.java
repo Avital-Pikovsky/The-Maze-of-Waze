@@ -14,7 +14,8 @@ import elements.Fruit;
 import elements.Robot;
 import utils.Point3D;
 /**
- * This class uses Json files to extract details from the game server to our graph, and finally to the gui.
+ * This class uses Json files to extract details from the game server to our graph,
+ *  and finally to the gui.
  * @author Avital Pikovsky && Omer Katz
  *
  */
