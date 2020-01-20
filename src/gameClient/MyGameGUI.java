@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.Collection;
 import javax.swing.JOptionPane;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import Server.Game_Server;
 import Server.game_service;
@@ -31,11 +33,11 @@ import gameClient.AutoGame;
 public class MyGameGUI {
 	private DGraph d = new DGraph();
 	double EPSILON = 0.0005;
-	private game_service game = Game_Server.getServer(17); // you have [0,23] games.
+	private game_service game = Game_Server.getServer(0); // you have [0,23] games.
 	private Graph_Algo gra;
 	private graph g;
 	private static double minX=0, maxX=0, minY=0, maxY=0;
-	private static int scoreInt ;
+	private static int scoreInt, movesInt, levelInt;
 	private String[] RobotsImg = {"data\\assaf.png","data\\yossef.png","data\\moshik.png"};
 	private String[] FruitImg = {"data\\donut.png","data\\pizza.png"};
 	private String[] GameImg = {"data\\x.png","data\\y.png"};
@@ -114,8 +116,8 @@ public class MyGameGUI {
 			minX = n.getLocation().x();
 			maxX = n.getLocation().x();
 
-			minY =n.getLocation().y();
-			maxY =n.getLocation().y();
+			minY = n.getLocation().y();
+			maxY = n.getLocation().y();
 
 			//looping on all the nodes searching for min\max points.
 			for (node_data nodes : points) {
@@ -206,11 +208,11 @@ public class MyGameGUI {
 	private void reDrawFruits() {
 		for(Fruit fru : d.fruitList) {
 			if (fru.getType()==1) {
-                kl.Place_Mark("fruit_1",fru.getPos().toString());
+				kl.Place_Mark("fruit_1",fru.getPos().toString());
 				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), FruitImg[0], 0.00075, 0.00075);
 			}
 			else {
-              kl.Place_Mark("fruit_-1",fru.getPos().toString());
+				kl.Place_Mark("fruit_-1",fru.getPos().toString());
 				StdDraw.picture(fru.getPos().x(), fru.getPos().y(), FruitImg[1] , 0.00075, 0.00075);
 			}
 		}
@@ -240,26 +242,43 @@ public class MyGameGUI {
 	/**
 	 * Prints the current left time and score during the game.
 	 */
-	public void printScore() {
+	public void printOnCanvas() {
 		String results = game.toString();
 		long t = game.timeToEnd();
 		try {
 			scoreInt=0;
+			movesInt=0;
+			levelInt=0;
 			JSONObject score = new JSONObject(results);
-			JSONObject ttt = score.getJSONObject("GameServer");
-			scoreInt = ttt.getInt("grade");
+			JSONObject s = score.getJSONObject("GameServer");
+			scoreInt = s.getInt("grade");
+			
+			JSONObject moves = new JSONObject(results);
+			JSONObject m = moves.getJSONObject("GameServer");
+			movesInt = m.getInt("moves");
+			
+			JSONObject level = new JSONObject(results);
+			JSONObject l = level.getJSONObject("GameServer");
+			levelInt = l.getInt("game_level");
 
 			String countDown = "Time: " + t/1000+"." + t%1000;
 			String scoreStr = "Score: " + scoreInt;
+			String moveStr = "Moves: " + movesInt;
+			String levelStr = "Game level: " + levelInt;
+
 			double tmp1 = maxX-minX;
 			double tmp2 = maxY-minY;
 			StdDraw.setPenRadius(0.08);
 			StdDraw.setPenColor(Color.BLACK);
-			StdDraw.text(minX+tmp1/1.15 , minY+tmp2/0.95, countDown);
-			StdDraw.text(minX+tmp1/1.02 , minY+tmp2/0.95, scoreStr);
+			StdDraw.text(minX+tmp1/1.25 , minY+tmp2/0.95, countDown);
+			StdDraw.text(minX+tmp1/1.05 , minY+tmp2/0.9, scoreStr);
+			StdDraw.text(minX+tmp1/1.05 , minY+tmp2/0.95, moveStr);
+			StdDraw.text(minX+tmp1/1.25 , minY+tmp2/0.9, levelStr);
+
+
 
 		}catch (Exception e) {
-			System.out.println("Failed to print score");
+			System.out.println("Failed to print on canvas");
 		}
 	}
 
@@ -269,7 +288,17 @@ public class MyGameGUI {
 	 * asks the player which game mode a game level he wants to play,
 	 * setting the graph by his choice, and calls the Manual\Auto game methods.
 	 */
-	public void gui() {
+	public void gui(){
+
+//		Object id = JOptionPane.showInputDialog("Please enter your id");
+//		if(id==null) { 
+//			drawCanvas();
+//			StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[0]);	
+//			return;
+//		}
+//		int Id = Integer.parseInt(id.toString());
+//		Game_Server.login(Id); 
+
 
 		String[] chooseGame = {"Manual game", "Auto game"};
 
@@ -292,7 +321,7 @@ public class MyGameGUI {
 
 		game_service game = Game_Server.getServer(Integer.parseInt((String) cGame));
 		setGame(game);
-		
+
 		Json_Updates ju = new Json_Updates(this);
 		initFromJson(ju);
 		drawFirstGraph(ju);
@@ -303,8 +332,8 @@ public class MyGameGUI {
 		} 
 
 		else if(selectedGame == "Auto game") {
-			playAuto(ju);
 			kl.KML_Stop();
+			playAuto(ju);
 		}
 	}
 
@@ -331,7 +360,7 @@ public class MyGameGUI {
 			StdDraw.clear();
 			StdDraw.enableDoubleBuffering();
 			reDrawGraph(ju);
-			printScore();
+			printOnCanvas();
 			showDescription();
 			StdDraw.show();
 		}
@@ -354,12 +383,12 @@ public class MyGameGUI {
 			StdDraw.clear();
 			StdDraw.enableDoubleBuffering();
 			reDrawGraph(ju);
-			printScore();
+			printOnCanvas();
 			StdDraw.show();
 		}
 		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
 	}
-	
+
 	//***************************Getters & Setters***************************************
 	/**
 	 * @return the graph of the GUI_Graph.
@@ -421,4 +450,9 @@ public class MyGameGUI {
 	public void setK(KML_Logger k) {
 		this.kl = k;
 	}
+
+
 }
+
+
+

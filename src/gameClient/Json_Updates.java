@@ -21,7 +21,7 @@ import utils.Point3D;
 public class Json_Updates {
 	
 	private DGraph d = new DGraph();
-	private game_service game = Game_Server.getServer(17); // you have [0,23] games.
+	private game_service game = Game_Server.getServer(0); // you have [0,23] games.
 	
 	
 	//******************constructors*************************

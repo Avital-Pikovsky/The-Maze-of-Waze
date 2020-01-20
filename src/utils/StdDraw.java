@@ -73,6 +73,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import gameClient.MyGameGUI;
@@ -729,6 +730,38 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		menuItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
 				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		menu.add(menuItem1);
+
+
+		JMenu menu1 = new JMenu("Our games");
+		menuBar.add(menu1);
+
+		JMenuItem menuItem2 = new JMenuItem("How much games we played in the server");
+		JMenuItem menuItem3 = new JMenuItem("Our current game");
+		JMenuItem menuItem4 = new JMenuItem("Our higher score for each level");
+
+		menuItem2.addActionListener(std);
+		menuItem3.addActionListener(std);
+		menuItem4.addActionListener(std);
+
+		menu1.add(menuItem2);
+		menu1.add(menuItem3);
+		menu1.add(menuItem4);
+
+
+		JMenu menu2 = new JMenu("Our rank");
+		menuBar.add(menu2);
+
+		JMenuItem menuItem5 = new JMenuItem("Our rank for each level");
+
+		menuItem5.addActionListener(std);
+
+		menu2.add(menuItem5);
+
+
+
+
+
+
 		return menuBar;
 	}
 
@@ -1661,14 +1694,35 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
-		chooser.setVisible(true);
-		String filename = chooser.getFile();
-		if (filename != null) {
-			StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
+
+		switch (e.getActionCommand()) {
+		case "Save":
+			FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
+			chooser.setVisible(true);
+			String filename = chooser.getFile();
+			if (filename != null) {
+				StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
+			}
+
+
+		case "How much games we played in the server":
+			
+			break;
+
+		case "Our current game":
+		
+			break;
+		case "Our higher score for each level":
+			
+			break;
+		case "Our rank for each level":
+			
+			break;
+
+		default:
+			break;
 		}
 	}
-
 
 	/***************************************************************************
 	 *  Mouse interactions.

@@ -22,7 +22,7 @@ import elements.Robot;
 public class AutoGame {
 	private MyGameGUI my = new MyGameGUI();
 	double EPSILON = 0.00000001;
-	private game_service game = Game_Server.getServer(17);
+	private game_service game = Game_Server.getServer(0);
 	private DGraph d = new DGraph();
 
 	//*********************Constructors*************************
