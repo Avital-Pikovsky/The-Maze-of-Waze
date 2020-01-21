@@ -23,7 +23,7 @@ public class ManualGame {
 	private DGraph d = new DGraph();
 	double EPSILON = 0.0005;
 	private game_service game = Game_Server.getServer(17); // you have [0,23] games.
-	private String[] RobotsImg = {"data\\assaf.png","data\\yossef.png","data\\moshik.png"};
+	private String[] RobotsImg = {"pics\\assaf.png","pics\\yossef.png","pics\\moshik.png"};
 
 /**
  * A constructor that gets MyGameGUI object as an argument and set the parameters bt it.

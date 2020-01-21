@@ -38,7 +38,7 @@ public class MyGameGUI {
 	private graph g;
 	private static double minX=0, maxX=0, minY=0, maxY=0;
 	private static int scoreInt, movesInt, levelInt;
-	private String[] RobotsImg = {"pics\\assaf.png","pics\\yossef.png","data\\moshik.png"};
+	private String[] RobotsImg = {"pics\\assaf.png","pics\\yossef.png","pics\\moshik.png"};
 	private String[] FruitImg = {"pics\\donut.png","pics\\pizza.png"};
 	private String[] GameImg = {"pics\\x.png","pics\\y.png"};
 	private static KML_Logger kl;
