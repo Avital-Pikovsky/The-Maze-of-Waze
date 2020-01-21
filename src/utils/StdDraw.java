@@ -61,7 +61,12 @@ import java.io.IOException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.TreeSet;
 import java.util.NoSuchElementException;
@@ -74,8 +79,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.KeyStroke;
 
+import org.junit.jupiter.params.shadow.com.univocity.parsers.common.processor.MultiBeanListProcessor;
+
+import dataStructure.edge_data;
+import gameClient.Json_Updates;
 import gameClient.MyGameGUI;
 
 /**
@@ -756,11 +767,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		menuItem5.addActionListener(std);
 
 		menu2.add(menuItem5);
-
-
-
-
-
 
 		return menuBar;
 	}
@@ -1687,285 +1693,377 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			System.out.println("Invalid image file type: " + suffix);
 		}
 	}
+	public static final String jdbcUrl="jdbc:mysql://db-mysql-ams3-67328-do-user-4468260-0.db.ondigitalocean.com:25060/oop?useUnicode=yes&characterEncoding=UTF-8&useSSL=false";
+	public static final String jdbcUser="student";
+	public static final String jdbcUserPassword="OOP2020student";
+	static int numGames = 0;
+	static int maxScore = 0;
+	static int lev = 0;
+	static int minMove = Integer.MAX_VALUE;
+
+	static Object[][] rows;
+
+	public static void MineprintLog() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+
+			Connection connection = 
+					DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcUserPassword);
+			Statement statement = connection.createStatement();
+			String allCustomersQuery = "SELECT * FROM Logs;";
+			ResultSet resultSet = statement.executeQuery(allCustomersQuery);
 
 
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
+			while(resultSet.next())
+			{
+				//System.out.println("Id: " + resultSet.getInt("UserID")+","+resultSet.getInt("levelID")+",score: "+resultSet.getInt("score")+", moves: "+resultSet.getInt("moves")+", date: "+resultSet.getDate("time"));
+				if(MyGameGUI.getId() == resultSet.getInt("UserID")) {
+					numGames++;
+					int[] arr = {0,1,3,5,9,11,13,16,19,20,23};
+					for (int i = 0; i < arr.length; i++) {
+						lev = resultSet.getInt("levelID");
+						if(i == lev) {
+							if((resultSet.getInt("score") > maxScore)&&(resultSet.getInt("moves") < minMove)&&Json_Updates.mu!=0) {
+								maxScore =  resultSet.getInt("score");
+								minMove = resultSet.getInt("moves");
+								
+								rows[i][0] = i;
+								rows[i][1] = minMove;
+								rows[i][2] = maxScore;
 
-		switch (e.getActionCommand()) {
-		case "Save":
-			FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
-			chooser.setVisible(true);
-			String filename = chooser.getFile();
-			if (filename != null) {
-				StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
+						
+							}
+						}
+					}
+				}
 			}
-
-
-		case "How much games we played in the server":
-			
-			break;
-
-		case "Our current game":
 		
-			break;
-		case "Our higher score for each level":
-			
-			break;
-		case "Our rank for each level":
-			
-			break;
 
-		default:
-			break;
-		}
-	}
-
-	/***************************************************************************
-	 *  Mouse interactions.
-	 ***************************************************************************/
-
-	/**
-	 * Returns true if the mouse is being pressed.
-	 *
-	 * @return {@code true} if the mouse is being pressed; {@code false} otherwise
-	 */
-	public static boolean isMousePressed()
-	{
-		synchronized (mouseLock) {
-			return isMousePressed;
-		}
-	}
-
-	/**
-	 * Returns true if the mouse is being pressed.
-	 *
-	 * @return {@code true} if the mouse is being pressed; {@code false} otherwise
-	 * @deprecated replaced by {@link #isMousePressed()}
-	 */
-	@Deprecated
-	public static boolean mousePressed() {
-		synchronized (mouseLock) {
-			return isMousePressed;
-		}
-	}
-
-	/**
-	 * Returns the <em>x</em>-coordinate of the mouse.
-	 *
-	 * @return the <em>x</em>-coordinate of the mouse
-	 */
-	public static double mouseX() {
-		synchronized (mouseLock) {
-			return mouseX;
-		}
-	}
-
-	/**
-	 * Returns the <em>y</em>-coordinate of the mouse.
-	 *
-	 * @return <em>y</em>-coordinate of the mouse
-	 */
-	public static double mouseY() {
-		synchronized (mouseLock) {
-			return mouseY;
-		}
-	}
+						Class.forName("com.mysql.jdbc.Driver");
+		
+						//			Connection connection1 = 
+						//					DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcUserPassword);
+						//			Statement statement1 = connection1.createStatement();
+						//			String allCustomersQuery1 = "SELECT DISTINCT UserID FROM Logs WHERE UserID<>316331198 AND levelID="+rank +"AND moves<="+resultSet.getInt("moves")+" AND score>="+resultSet.getInt("score");
+						//			ResultSet resultSet1 = statement1.executeQuery(allCustomersQuery1);
+						//
+						//			while(resultSet1.next()) {
+						//				rank++;
+						//				System.out.println(rank);
 
 
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// this body is intentionally left empty
-	}
 
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// this body is intentionally left empty
-	}
+						resultSet.close();
+						statement.close();		
+						connection.close();		
+					}
 
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// this body is intentionally left empty
-	}
+					catch (SQLException sqle) {
+						System.out.println("SQLException: " + sqle.getMessage());
+						System.out.println("Vendor Error: " + sqle.getErrorCode());
+					}
+					catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+				}
 
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void mousePressed(MouseEvent e) {
-		synchronized (mouseLock) {
-			mouseX = StdDraw.userX(e.getX());
-			mouseY = StdDraw.userY(e.getY());
-			mouseP=new Point3D(mouseX, mouseY);
-			isMousePressed = true;
-		}
-	}
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void actionPerformed(ActionEvent e) {
 
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		synchronized (mouseLock) {
-			isMousePressed = false;
-		}
-	}
-
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void mouseDragged(MouseEvent e)  {
-		synchronized (mouseLock) {
-			mouseX = StdDraw.userX(e.getX());
-			mouseY = StdDraw.userY(e.getY());
-		}
-	}
-
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		synchronized (mouseLock) {
-			mouseX = StdDraw.userX(e.getX());
-			mouseY = StdDraw.userY(e.getY());
-		}
-	}
+					switch (e.getActionCommand()) {
+					case "Save":
+						FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
+						chooser.setVisible(true);
+						String filename = chooser.getFile();
+						if (filename != null) {
+							StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
+						}
 
 
-	/***************************************************************************
-	 *  Keyboard interactions.
-	 ***************************************************************************/
+					case "How much games we played in the server":
+						MineprintLog();
+						JOptionPane.showMessageDialog(null, "We played "+numGames+" games.","Messege",1);
 
-	/**
-	 * Returns true if the user has typed a key (that has not yet been processed).
-	 *
-	 * @return {@code true} if the user has typed a key (that has not yet been processed
-	 *         by {@link #nextKeyTyped()}; {@code false} otherwise
-	 */
-	public static boolean hasNextKeyTyped() {
-		synchronized (keyLock) {
-			return !keysTyped.isEmpty();
-		}
-	}
 
-	/**
-	 * Returns the next key that was typed by the user (that your program has not already processed).
-	 * This method should be preceded by a call to {@link #hasNextKeyTyped()} to ensure
-	 * that there is a next key to process.
-	 * This method returns a Unicode character corresponding to the key
-	 * typed (such as {@code 'a'} or {@code 'A'}).
-	 * It cannot identify action keys (such as F1 and arrow keys)
-	 * or modifier keys (such as control).
-	 *
-	 * @return the next key typed by the user (that your program has not already processed).
-	 * @throws NoSuchElementException if there is no remaining key
-	 */
-	public static char nextKeyTyped() {
-		synchronized (keyLock) {
-			if (keysTyped.isEmpty()) {
-				throw new NoSuchElementException("your program has already processed all keystrokes");
+						break;
+
+					case "Our current game":
+						JOptionPane.showMessageDialog(null, "Max user level: "+Json_Updates.mu+".","Messege",1);
+
+						break;
+					case "Our higher score for each level":
+						//MineprintLog();
+						
+						Object[][] rows = {
+								{0,minMove,maxScore},{1,minMove,maxScore},
+								{3,minMove,maxScore},{5,minMove,maxScore},
+								{9,minMove,maxScore},{11,minMove,maxScore},
+								{13,minMove,maxScore},{16,minMove,maxScore},
+								{19,minMove,maxScore},{20,minMove,maxScore},
+								{23,minMove,maxScore},};
+
+						Object[] col =  {"Stage","Best Score","Moves"};
+
+						JTable table = new JTable(rows,col);
+						JOptionPane.showMessageDialog(null, new JScrollPane(table));
+
+						break;
+					case "Our rank in the server table for each level ":
+
+
+						break;
+
+					default:
+						break;
+					}
+				}
+
+
+				/***************************************************************************
+				 *  Mouse interactions.
+				 ***************************************************************************/
+
+				/**
+				 * Returns true if the mouse is being pressed.
+				 *
+				 * @return {@code true} if the mouse is being pressed; {@code false} otherwise
+				 */
+				public static boolean isMousePressed()
+				{
+					synchronized (mouseLock) {
+						return isMousePressed;
+					}
+				}
+
+				/**
+				 * Returns true if the mouse is being pressed.
+				 *
+				 * @return {@code true} if the mouse is being pressed; {@code false} otherwise
+				 * @deprecated replaced by {@link #isMousePressed()}
+				 */
+				@Deprecated
+				public static boolean mousePressed() {
+					synchronized (mouseLock) {
+						return isMousePressed;
+					}
+				}
+
+				/**
+				 * Returns the <em>x</em>-coordinate of the mouse.
+				 *
+				 * @return the <em>x</em>-coordinate of the mouse
+				 */
+				public static double mouseX() {
+					synchronized (mouseLock) {
+						return mouseX;
+					}
+				}
+
+				/**
+				 * Returns the <em>y</em>-coordinate of the mouse.
+				 *
+				 * @return <em>y</em>-coordinate of the mouse
+				 */
+				public static double mouseY() {
+					synchronized (mouseLock) {
+						return mouseY;
+					}
+				}
+
+
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					// this body is intentionally left empty
+				}
+
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					// this body is intentionally left empty
+				}
+
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void mouseExited(MouseEvent e) {
+					// this body is intentionally left empty
+				}
+
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void mousePressed(MouseEvent e) {
+					synchronized (mouseLock) {
+						mouseX = StdDraw.userX(e.getX());
+						mouseY = StdDraw.userY(e.getY());
+						mouseP=new Point3D(mouseX, mouseY);
+						isMousePressed = true;
+					}
+				}
+
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					synchronized (mouseLock) {
+						isMousePressed = false;
+					}
+				}
+
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void mouseDragged(MouseEvent e)  {
+					synchronized (mouseLock) {
+						mouseX = StdDraw.userX(e.getX());
+						mouseY = StdDraw.userY(e.getY());
+					}
+				}
+
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void mouseMoved(MouseEvent e) {
+					synchronized (mouseLock) {
+						mouseX = StdDraw.userX(e.getX());
+						mouseY = StdDraw.userY(e.getY());
+					}
+				}
+
+
+				/***************************************************************************
+				 *  Keyboard interactions.
+				 ***************************************************************************/
+
+				/**
+				 * Returns true if the user has typed a key (that has not yet been processed).
+				 *
+				 * @return {@code true} if the user has typed a key (that has not yet been processed
+				 *         by {@link #nextKeyTyped()}; {@code false} otherwise
+				 */
+				public static boolean hasNextKeyTyped() {
+					synchronized (keyLock) {
+						return !keysTyped.isEmpty();
+					}
+				}
+
+				/**
+				 * Returns the next key that was typed by the user (that your program has not already processed).
+				 * This method should be preceded by a call to {@link #hasNextKeyTyped()} to ensure
+				 * that there is a next key to process.
+				 * This method returns a Unicode character corresponding to the key
+				 * typed (such as {@code 'a'} or {@code 'A'}).
+				 * It cannot identify action keys (such as F1 and arrow keys)
+				 * or modifier keys (such as control).
+				 *
+				 * @return the next key typed by the user (that your program has not already processed).
+				 * @throws NoSuchElementException if there is no remaining key
+				 */
+				public static char nextKeyTyped() {
+					synchronized (keyLock) {
+						if (keysTyped.isEmpty()) {
+							throw new NoSuchElementException("your program has already processed all keystrokes");
+						}
+						return keysTyped.remove(keysTyped.size() - 1);
+						// return keysTyped.removeLast();
+					}
+				}
+
+				/**
+				 * Returns true if the given key is being pressed.
+				 * <p>
+				 * This method takes the keycode (corresponding to a physical key)
+				 *  as an argument. It can handle action keys
+				 * (such as F1 and arrow keys) and modifier keys (such as shift and control).
+				 * See {@link KeyEvent} for a description of key codes.
+				 *
+				 * @param  keycode the key to check if it is being pressed
+				 * @return {@code true} if {@code keycode} is currently being pressed;
+				 *         {@code false} otherwise
+				 */
+				public static boolean isKeyPressed(int keycode) {
+					synchronized (keyLock) {
+						return keysDown.contains(keycode);
+					}
+				}
+
+
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void keyTyped(KeyEvent e) {
+					synchronized (keyLock) {
+						keysTyped.addFirst(e.getKeyChar());
+					}
+				}
+
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void keyPressed(KeyEvent e) {
+					synchronized (keyLock) {
+						keysDown.add(e.getKeyCode());
+					}
+				}
+
+				/**
+				 * This method cannot be called directly.
+				 */
+				@Override
+				public void keyReleased(KeyEvent e) {
+					synchronized (keyLock) {
+						keysDown.remove(e.getKeyCode());
+					}
+				}
+
+
+
+
+				/**
+				 * Test client.
+				 *
+				 * @param args the command-line arguments
+				 */
+				public static void main(String[] args) {
+					StdDraw.square(0.2, 0.8, 0.1);
+					StdDraw.filledSquare(0.8, 0.8, 0.2);
+					StdDraw.circle(0.8, 0.2, 0.2);
+
+					StdDraw.setPenColor(StdDraw.BOOK_RED);
+					StdDraw.setPenRadius(0.02);
+					StdDraw.arc(0.8, 0.2, 0.1, 200, 45);
+
+					// draw a blue diamond
+					StdDraw.setPenRadius();
+					StdDraw.setPenColor(StdDraw.BOOK_BLUE);
+					double[] x = { 0.1, 0.2, 0.3, 0.2 };
+					double[] y = { 0.2, 0.3, 0.2, 0.1 };
+					StdDraw.filledPolygon(x, y);
+
+					// text
+					StdDraw.setPenColor(StdDraw.BLACK);
+					StdDraw.text(0.2, 0.5, "black text");
+					StdDraw.setPenColor(StdDraw.WHITE);
+					StdDraw.text(0.8, 0.8, "white text");
+				}
+
 			}
-			return keysTyped.remove(keysTyped.size() - 1);
-			// return keysTyped.removeLast();
-		}
-	}
-
-	/**
-	 * Returns true if the given key is being pressed.
-	 * <p>
-	 * This method takes the keycode (corresponding to a physical key)
-	 *  as an argument. It can handle action keys
-	 * (such as F1 and arrow keys) and modifier keys (such as shift and control).
-	 * See {@link KeyEvent} for a description of key codes.
-	 *
-	 * @param  keycode the key to check if it is being pressed
-	 * @return {@code true} if {@code keycode} is currently being pressed;
-	 *         {@code false} otherwise
-	 */
-	public static boolean isKeyPressed(int keycode) {
-		synchronized (keyLock) {
-			return keysDown.contains(keycode);
-		}
-	}
 
 
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void keyTyped(KeyEvent e) {
-		synchronized (keyLock) {
-			keysTyped.addFirst(e.getKeyChar());
-		}
-	}
-
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void keyPressed(KeyEvent e) {
-		synchronized (keyLock) {
-			keysDown.add(e.getKeyCode());
-		}
-	}
-
-	/**
-	 * This method cannot be called directly.
-	 */
-	@Override
-	public void keyReleased(KeyEvent e) {
-		synchronized (keyLock) {
-			keysDown.remove(e.getKeyCode());
-		}
-	}
-
-
-
-
-	/**
-	 * Test client.
-	 *
-	 * @param args the command-line arguments
-	 */
-	public static void main(String[] args) {
-		StdDraw.square(0.2, 0.8, 0.1);
-		StdDraw.filledSquare(0.8, 0.8, 0.2);
-		StdDraw.circle(0.8, 0.2, 0.2);
-
-		StdDraw.setPenColor(StdDraw.BOOK_RED);
-		StdDraw.setPenRadius(0.02);
-		StdDraw.arc(0.8, 0.2, 0.1, 200, 45);
-
-		// draw a blue diamond
-		StdDraw.setPenRadius();
-		StdDraw.setPenColor(StdDraw.BOOK_BLUE);
-		double[] x = { 0.1, 0.2, 0.3, 0.2 };
-		double[] y = { 0.2, 0.3, 0.2, 0.1 };
-		StdDraw.filledPolygon(x, y);
-
-		// text
-		StdDraw.setPenColor(StdDraw.BLACK);
-		StdDraw.text(0.2, 0.5, "black text");
-		StdDraw.setPenColor(StdDraw.WHITE);
-		StdDraw.text(0.8, 0.8, "white text");
-	}
-
-}
-
-
-//Copyright © 2000–2017, Robert Sedgewick and Kevin Wayne. 
-//Last updated: Mon Aug 27 16:43:47 EDT 2018.
+			//Copyright © 2000–2017, Robert Sedgewick and Kevin Wayne. 
+			//Last updated: Mon Aug 27 16:43:47 EDT 2018.

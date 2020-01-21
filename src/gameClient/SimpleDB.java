@@ -22,11 +22,11 @@ public class SimpleDB {
 	public static void main(String[] args) {
 		int id1 = 999;  // "dummy existing ID  
 		int level = 0;
-		allUsers();
+		//allUsers();
 		printLog();
 		String kml = getKML(id1,level);
 		System.out.println("***** KML file example: ******");
-		//	System.out.println(kml);
+			System.out.println(kml);
 	}
 	/** simply prints all the games as played by the users (in the database).
 	 * 
@@ -42,7 +42,8 @@ public class SimpleDB {
 
 			while(resultSet.next())
 			{
-				System.out.println("Id: " + resultSet.getInt("UserID")+","+resultSet.getInt("levelID")+","+resultSet.getInt("moves")+","+resultSet.getDate("time"));
+
+				System.out.println("Id: " + resultSet.getInt("UserID")+","+resultSet.getInt("levelID")+",score: "+resultSet.getInt("score")+", moves: "+resultSet.getInt("moves")+", date: "+resultSet.getDate("time"));
 			}
 			resultSet.close();
 			statement.close();		

@@ -33,7 +33,7 @@ import gameClient.AutoGame;
 public class MyGameGUI {
 	private DGraph d = new DGraph();
 	double EPSILON = 0.0005;
-	private game_service game = Game_Server.getServer(0); // you have [0,23] games.
+	private game_service game = Game_Server.getServer(Json_Updates.mu); // you have [0,23] games.
 	private Graph_Algo gra;
 	private graph g;
 	private static double minX=0, maxX=0, minY=0, maxY=0;
@@ -43,6 +43,8 @@ public class MyGameGUI {
 	private String[] GameImg = {"pics\\x.png","pics\\y.png"};
 	private static KML_Logger kl;
 	private static int game_num;
+	Thread r;
+	public static int sleepTime = 105;
 
 
 	//***********************************Constructors********************************
@@ -252,11 +254,11 @@ public class MyGameGUI {
 			JSONObject score = new JSONObject(results);
 			JSONObject s = score.getJSONObject("GameServer");
 			scoreInt = s.getInt("grade");
-			
+
 			JSONObject moves = new JSONObject(results);
 			JSONObject m = moves.getJSONObject("GameServer");
 			movesInt = m.getInt("moves");
-			
+
 			JSONObject level = new JSONObject(results);
 			JSONObject l = level.getJSONObject("GameServer");
 			levelInt = l.getInt("game_level");
@@ -270,10 +272,10 @@ public class MyGameGUI {
 			double tmp2 = maxY-minY;
 			StdDraw.setPenRadius(0.08);
 			StdDraw.setPenColor(Color.BLACK);
-			StdDraw.text(minX+tmp1/1.25 , minY+tmp2/0.95, countDown);
-			StdDraw.text(minX+tmp1/1.05 , minY+tmp2/0.9, scoreStr);
-			StdDraw.text(minX+tmp1/1.05 , minY+tmp2/0.95, moveStr);
-			StdDraw.text(minX+tmp1/1.25 , minY+tmp2/0.9, levelStr);
+			StdDraw.text(minX+tmp1/1.25 , minY+tmp2/0.97, countDown);
+			StdDraw.text(minX+tmp1/1.05 , minY+tmp2/0.94, scoreStr);
+			StdDraw.text(minX+tmp1/1.05 , minY+tmp2/0.97, moveStr);
+			StdDraw.text(minX+tmp1/1.25 , minY+tmp2/0.94, levelStr);
 
 
 
@@ -288,17 +290,28 @@ public class MyGameGUI {
 	 * asks the player which game mode a game level he wants to play,
 	 * setting the graph by his choice, and calls the Manual\Auto game methods.
 	 */
+	public static int Id = -1;
+	
+	public static int getId() {
+		return Id;
+	}
+	public static void setId(int id) {
+		Id = id;
+	}
 	public void gui(){
 
-//		Object id = JOptionPane.showInputDialog("Please enter your id");
-//		if(id==null) { 
-//			drawCanvas();
-//			StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[0]);	
-//			return;
-//		}
-//		int Id = Integer.parseInt(id.toString());
-//		Game_Server.login(Id); 
+		Object id = JOptionPane.showInputDialog("Please enter your id");
 
+		try {
+			Id = Integer.parseInt(id.toString());
+			Game_Server.login(Id); 
+		}
+		catch (Exception e) {
+			drawCanvas();
+			StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[0]);	
+
+			return;
+		}
 
 		String[] chooseGame = {"Manual game", "Auto game"};
 
@@ -364,7 +377,8 @@ public class MyGameGUI {
 			showDescription();
 			StdDraw.show();
 		}
-		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
+		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+
+				"! \n and the final moves is: "+movesInt+"!","GAME OVER",1);	
 	}
 	/**
 	 * This method allows the player to see the game played automatically.
@@ -375,6 +389,7 @@ public class MyGameGUI {
 		AutoGame ga = new AutoGame(this);
 
 		ga.addAutoRobot();
+		ThreadMove();
 		game.startGame();
 
 		while(game.isRunning()) {
@@ -386,9 +401,33 @@ public class MyGameGUI {
 			printOnCanvas();
 			StdDraw.show();
 		}
-		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+"!","GAME OVER",1);
+		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+
+				"! \n and the final moves is: "+movesInt+"!","GAME OVER",1);	
 	}
 
+	public synchronized void ThreadMove()
+	{
+		r = new Thread(new Runnable() {
+			@Override
+			public synchronized void run() {
+				while(game.isRunning())
+				{
+					if(game.isRunning())
+					{
+						game.move();
+					}
+					try {
+						Thread.sleep(sleepTime);
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				r.interrupt();
+			}
+		});
+		r.start();
+	}
 	//***************************Getters & Setters***************************************
 	/**
 	 * @return the graph of the GUI_Graph.

@@ -23,6 +23,7 @@ public class Json_Updates {
 	
 	private DGraph d = new DGraph();
 	private game_service game = Game_Server.getServer(0); // you have [0,23] games.
+	public static int  mu;
 	
 	
 	//******************constructors*************************
@@ -72,10 +73,15 @@ public void init(game_service game) {
 		int rs = gameServerLine.getInt("robots");
 		d.setNumRobot(rs);
 		
+		//max_user_level
+		mu = gameServerLine.getInt("max_user_level");
+		
 	}
 	catch (JSONException e){
 	e.printStackTrace();
 	}
+	
+
 }
 
 /**

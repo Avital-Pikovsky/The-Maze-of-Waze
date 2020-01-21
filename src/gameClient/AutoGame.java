@@ -10,6 +10,7 @@ import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.node_data;
 import elements.Fruit;
+import elements.Fruit_Comperator;
 import elements.Robot;
 /**
  * This class represent the auto game mode,
@@ -21,11 +22,13 @@ import elements.Robot;
  */
 public class AutoGame {
 	private MyGameGUI my = new MyGameGUI();
+	private Fruit_Comperator fc = new Fruit_Comperator();
 	double EPSILON = 0.00000001;
-	private game_service game = Game_Server.getServer(0);
+	private game_service game = Game_Server.getServer(Json_Updates.mu);
 	private DGraph d = new DGraph();
 
-	//*********************Constructors*************************
+
+	//********Constructors********
 
 	/**
 	 * Default constructor, create new AutoGame with empty parameters.
@@ -137,18 +140,60 @@ public class AutoGame {
 	/**
 	 * Method that locates each robot near a fruit before the start of the game.
 	 */
-	public void addAutoRobot() {
+	public void addAutoRobot(){
 		int src =0;
 		int dest =0;
 		allFruitToEdges(d.fruitList);
+		//d.fruitList.sort(fc);
 		for(int i=0; i< d.getNumRobot();i++) {
+
 			src = d.fruitList.get(i).getSrc();
 			dest = d.fruitList.get(i).getDest();
 			game.addRobot(src);
 			d.addRobot(new Robot(1, src, dest, i,d.getNode(src).getLocation()));
+
 		}
 	}
 
+	private Fruit closestFruit(Robot r, List<Fruit> list) {
+		list.sort(fc);
+		Fruit closest = list.get(0);
+		double temp =0;
+		double TP = Double.MAX_VALUE;
+		for(int i=0; i<list.size()-1;i++) {
+			temp = my.getAlgo().shortestPathDist(r.getSrc(), list.get(i).getSrc());
+
+			if(temp<TP){
+
+				TP = temp;
+
+				if(!(list.contains(closest)))
+					list.add(closest);
+
+				closest = list.get(i);
+				list.remove(list.get(i));
+			}
+		}
+		return closest;
+	}
+
+	private List<Fruit> leftZone(List<Fruit> list){
+		ArrayList<Fruit> left = new ArrayList<Fruit>();
+		for(Fruit f: list) {
+			if(f.getPos().x()<35.200160479418884) 
+				left.add(f);	
+		}
+		return left;
+	}
+
+	private List<Fruit> rightZone(List<Fruit> list){
+		ArrayList<Fruit> right = new ArrayList<Fruit>();
+		for(Fruit f: list) {
+			if(f.getPos().x()>=35.200160479418884) 
+				right.add(f);	
+		}
+		return right;
+	}
 	/**
 	 * Method that decides each robot next move throughout the game.
 	 * The purpose of this method is to eat as many fruits in the most efficient way,
@@ -156,30 +201,34 @@ public class AutoGame {
 	 * @param list - list of the game robots.
 	 */
 	public void AutoNextNode(List<Robot> list) {
+		Fruit closest = null;
+		ArrayList<Fruit> left = (ArrayList<Fruit>) leftZone(d.fruitList);
 
-		Fruit topWorth = null;
-		double TP = Double.MAX_VALUE;
-		double temp = 0;
 		int nextEdge = 0;
 		ArrayList<node_data> nodeList = new ArrayList<node_data>();
 		for(Robot r : list) {
-			for(Fruit f : my.getDgraph().fruitList) {
-
-				temp = my.getAlgo().shortestPathDist(r.getSrc(), f.getSrc());
-				if(temp<TP){
-					TP = temp;
-					topWorth = f;
-				}
+			if(r.getId()==1) {
+				if(!left.isEmpty())
+					closest= closestFruit(r, left);
 			}
-			if(r.getSrc()==topWorth.getSrc()) {
-				game.chooseNextEdge(r.getId(), topWorth.getDest());
+			else
+				closest = closestFruit(r,d.fruitList);
+			
+			double fromFruit = r.getPos().distance2D(closest.getPos());
+			if(fromFruit<0.0013) 
+				MyGameGUI.sleepTime = 60;
+
+			else
+				MyGameGUI.sleepTime = 105;
+
+			if(r.getSrc()==closest.getSrc()) {
+				game.chooseNextEdge(r.getId(), closest.getDest());
 			}
 			else {
-				nodeList = (ArrayList<node_data>) my.getAlgo().shortestPath(r.getSrc(), topWorth.getSrc());	
+				nodeList = (ArrayList<node_data>) my.getAlgo().shortestPath(r.getSrc(), closest.getSrc());	
 				nextEdge = nodeList.get(1).getKey();
 				game.chooseNextEdge(r.getId(), nextEdge);
 			}
 		}
-		game.move();
 	}
 }

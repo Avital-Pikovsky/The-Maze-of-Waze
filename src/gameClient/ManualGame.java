@@ -22,7 +22,7 @@ public class ManualGame {
 	private static int robPoint = 0;
 	private DGraph d = new DGraph();
 	double EPSILON = 0.0005;
-	private game_service game = Game_Server.getServer(17); // you have [0,23] games.
+	private game_service game = Game_Server.getServer(Json_Updates.mu); // you have [0,23] games.
 	private String[] RobotsImg = {"pics\\assaf.png","pics\\yossef.png","pics\\moshik.png"};
 
 /**
