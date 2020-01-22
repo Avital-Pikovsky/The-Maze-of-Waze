@@ -37,7 +37,7 @@ public class MyGameGUI {
 	private Graph_Algo gra;
 	private graph g;
 	private static double minX=0, maxX=0, minY=0, maxY=0;
-	private static int scoreInt, movesInt, levelInt;
+	private static int scoreInt = 0, movesInt = 0, levelInt = 0;
 	private String[] RobotsImg = {"pics\\assaf.png","pics\\yossef.png","pics\\moshik.png"};
 	private String[] FruitImg = {"pics\\donut.png","pics\\pizza.png"};
 	private String[] GameImg = {"pics\\x.png","pics\\y.png"};
@@ -248,9 +248,7 @@ public class MyGameGUI {
 		String results = game.toString();
 		long t = game.timeToEnd();
 		try {
-			scoreInt=0;
-			movesInt=0;
-			levelInt=0;
+	
 			JSONObject score = new JSONObject(results);
 			JSONObject s = score.getJSONObject("GameServer");
 			scoreInt = s.getInt("grade");
@@ -259,9 +257,10 @@ public class MyGameGUI {
 			JSONObject m = moves.getJSONObject("GameServer");
 			movesInt = m.getInt("moves");
 
-			JSONObject level = new JSONObject(results);
-			JSONObject l = level.getJSONObject("GameServer");
-			levelInt = l.getInt("game_level");
+			//			JSONObject level = new JSONObject(results);
+			//			JSONObject l = level.getJSONObject("GameServer");
+			//			System.out.println(l.toString());
+			//			levelInt = l.getInt("game_level");
 
 			String countDown = "Time: " + t/1000+"." + t%1000;
 			String scoreStr = "Score: " + scoreInt;
@@ -290,20 +289,15 @@ public class MyGameGUI {
 	 * asks the player which game mode a game level he wants to play,
 	 * setting the graph by his choice, and calls the Manual\Auto game methods.
 	 */
-	public static int Id = -1;
-	
-	public static int getId() {
-		return Id;
-	}
-	public static void setId(int id) {
-		Id = id;
-	}
+	public static int Id;
+
 	public void gui(){
 
-		Object id = JOptionPane.showInputDialog("Please enter your id");
+		Object currentId = JOptionPane.showInputDialog("Please enter your id");
 
 		try {
-			Id = Integer.parseInt(id.toString());
+		
+			Id = Integer.parseInt(currentId.toString());
 			Game_Server.login(Id); 
 		}
 		catch (Exception e) {
@@ -334,6 +328,7 @@ public class MyGameGUI {
 
 		game_service game = Game_Server.getServer(Integer.parseInt((String) cGame));
 		setGame(game);
+		levelInt = Integer.parseInt(cGame.toString());
 
 		Json_Updates ju = new Json_Updates(this);
 		initFromJson(ju);
