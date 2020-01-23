@@ -144,7 +144,7 @@ public class AutoGame {
 		int src =0;
 		int dest =0;
 		allFruitToEdges(d.fruitList);
-		//d.fruitList.sort(fc);
+		d.fruitList.sort(fc);
 		for(int i=0; i< d.getNumRobot();i++) {
 
 			src = d.fruitList.get(i).getSrc();
@@ -154,18 +154,25 @@ public class AutoGame {
 
 		}
 	}
-
+/**
+ * This method gets a robot and a list of fruit,
+ * and decides for the robot the best fruit to go after,
+ * and removes this fruit from the list.
+ * @param r- the current robot.
+ * @param list = the list of the graph fruits.
+ * @return
+ */
 	private Fruit closestFruit(Robot r, List<Fruit> list) {
 		list.sort(fc);
 		Fruit closest = list.get(0);
 		double temp =0;
-		double TP = Double.MAX_VALUE;
+		double tmpFruit = Double.MAX_VALUE;
 		for(int i=0; i<list.size()-1;i++) {
 			temp = my.getAlgo().shortestPathDist(r.getSrc(), list.get(i).getSrc());
 
-			if(temp<TP){
+			if(temp<tmpFruit){
 
-				TP = temp;
+				tmpFruit = temp;
 
 				if(!(list.contains(closest)))
 					list.add(closest);
@@ -176,7 +183,14 @@ public class AutoGame {
 		}
 		return closest;
 	}
-
+/**
+ * This method gets a list of the graph fruits,
+ * creating a new list of fruits that will contain only 
+ * the fruits that positioned on the left side of the graph.
+ * 
+ * @param list
+ * @return the left list
+ */
 	private List<Fruit> leftZone(List<Fruit> list){
 		ArrayList<Fruit> left = new ArrayList<Fruit>();
 		for(Fruit f: list) {
@@ -185,7 +199,14 @@ public class AutoGame {
 		}
 		return left;
 	}
-
+	/**
+	 * This method gets a list of the graph fruits,
+	 * creating a new list of fruits that will contain only 
+	 * the fruits that positioned on the right side of the graph.
+	 * 
+	 * @param list
+	 * @return the right list
+	 */
 	private List<Fruit> rightZone(List<Fruit> list){
 		ArrayList<Fruit> right = new ArrayList<Fruit>();
 		for(Fruit f: list) {
@@ -203,20 +224,29 @@ public class AutoGame {
 	public void AutoNextNode(List<Robot> list) {
 		Fruit closest = null;
 		ArrayList<Fruit> left = (ArrayList<Fruit>) leftZone(d.fruitList);
+		ArrayList<Fruit> right = (ArrayList<Fruit>) rightZone(d.fruitList);
 
 		int nextEdge = 0;
 		ArrayList<node_data> nodeList = new ArrayList<node_data>();
 		for(Robot r : list) {
+			if(list.size()>1) {
 			if(r.getId()==1) {
 				if(!left.isEmpty())
 					closest= closestFruit(r, left);
 			}
+			else if(r.getId()==2) {
+				if(!right.isEmpty())
+					closest= closestFruit(r, right);
+			}
 			else
 				closest = closestFruit(r,d.fruitList);
+			}
+			else
+			closest = closestFruit(r,d.fruitList);
 			
 			double fromFruit = r.getPos().distance2D(closest.getPos());
 			if(fromFruit<0.0013) 
-				MyGameGUI.sleepTime = 60;
+				MyGameGUI.sleepTime = 60; //near the fruit
 
 			else
 				MyGameGUI.sleepTime = 105;

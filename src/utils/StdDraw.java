@@ -67,7 +67,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.TreeSet;
 import java.util.NoSuchElementException;
@@ -83,10 +82,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
-
-import org.junit.jupiter.params.shadow.com.univocity.parsers.common.processor.MultiBeanListProcessor;
-
-import dataStructure.edge_data;
 import gameClient.Json_Updates;
 import gameClient.MyGameGUI;
 
@@ -1771,7 +1766,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			Statement statement = connection.createStatement();
 			String allCustomersQuery = "SELECT * FROM Logs WHERE UserID ="+MyGameGUI.Id+";";
 			ResultSet resultSet = statement.executeQuery(allCustomersQuery);
-			System.out.println(stage.size());
 			if(stage.size()!=11) {
 				stage.add(0);
 				stage.add(1);
@@ -1805,6 +1799,9 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+		catch (Exception x) {
+			System.exit(0);			
+			}
 	}
 
 	/**
@@ -1831,6 +1828,8 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			break;
 
 		case "Our max game":
+			if(Json_Updates.mu==-1)
+				Json_Updates.mu =0;
 			JOptionPane.showMessageDialog(null, "Max user level: "+Json_Updates.mu+".","Messege",1);
 
 			break;
@@ -1842,6 +1841,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			table.setRowHeight(36);
 			table.setFont(new Font("Omer", Font.BOLD, 20));
 			JOptionPane.showMessageDialog(null, new JScrollPane(table));
+			
 
 			break;
 
@@ -1877,13 +1877,21 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 				statement.close();		
 				connection.close();	
 			}
+
 			catch (SQLException sqle) {
 				System.out.println("SQLException: " + sqle.getMessage());
 				System.out.println("Vendor Error: " + sqle.getErrorCode());
+				System.exit(0);			
+
 			}
 			catch (ClassNotFoundException ex) {
 				ex.printStackTrace();
+				System.exit(0);			
+
 			}
+			catch (Exception x) {
+				System.exit(0);			
+				}
 
 
 			break;

@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.Collection;
 import javax.swing.JOptionPane;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 import Server.Game_Server;
 import Server.game_service;
@@ -240,7 +238,6 @@ public class MyGameGUI {
 			StdDraw.text(minX+(maxX-minX)/1.1 , minY+(maxY-minY)/1, "Pick a player with the keyboard");
 	}
 
-
 	/**
 	 * Prints the current left time and score during the game.
 	 */
@@ -248,7 +245,7 @@ public class MyGameGUI {
 		String results = game.toString();
 		long t = game.timeToEnd();
 		try {
-	
+
 			JSONObject score = new JSONObject(results);
 			JSONObject s = score.getJSONObject("GameServer");
 			scoreInt = s.getInt("grade");
@@ -256,11 +253,6 @@ public class MyGameGUI {
 			JSONObject moves = new JSONObject(results);
 			JSONObject m = moves.getJSONObject("GameServer");
 			movesInt = m.getInt("moves");
-
-			//			JSONObject level = new JSONObject(results);
-			//			JSONObject l = level.getJSONObject("GameServer");
-			//			System.out.println(l.toString());
-			//			levelInt = l.getInt("game_level");
 
 			String countDown = "Time: " + t/1000+"." + t%1000;
 			String scoreStr = "Score: " + scoreInt;
@@ -296,7 +288,7 @@ public class MyGameGUI {
 		Object currentId = JOptionPane.showInputDialog("Please enter your id");
 
 		try {
-		
+
 			Id = Integer.parseInt(currentId.toString());
 			Game_Server.login(Id); 
 		}
@@ -322,12 +314,17 @@ public class MyGameGUI {
 		}
 		Object cGame = JOptionPane.showInputDialog(null, "Choose a level 0-23", "Message",
 				JOptionPane.INFORMATION_MESSAGE, null, arr, arr[0]);
-		if(cGame==null) return;
+		if(cGame==null) {
+			drawCanvas();
+			StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[0]);	
+			return;
+		}
 		game_num = Integer.parseInt(cGame.toString());
-		kl = new KML_Logger(game_num);
 
 		game_service game = Game_Server.getServer(Integer.parseInt((String) cGame));
 		setGame(game);
+		kl = new KML_Logger(game_num,game);
+		//	kl.UploadKMLfile(game);
 		levelInt = Integer.parseInt(cGame.toString());
 
 		Json_Updates ju = new Json_Updates(this);
@@ -340,9 +337,10 @@ public class MyGameGUI {
 		} 
 
 		else if(selectedGame == "Auto game") {
-			kl.KML_Stop();
 			playAuto(ju);
+			kl.KML_Stop();
 		}
+		//	System.out.println(kl.str);
 	}
 
 	//****************************************Play Modes***************************************
@@ -399,7 +397,10 @@ public class MyGameGUI {
 		JOptionPane.showMessageDialog(null, "The final score is: "+scoreInt+
 				"! \n and the final moves is: "+movesInt+"!","GAME OVER",1);	
 	}
-
+	/**
+	 * This Thread will move the robots on the graph with a dynamic sleep time,
+	 * that will be decided by the distance between the robot and his closest fruit.
+	 */
 	public synchronized void ThreadMove()
 	{
 		r = new Thread(new Runnable() {
@@ -407,10 +408,8 @@ public class MyGameGUI {
 			public synchronized void run() {
 				while(game.isRunning())
 				{
-					if(game.isRunning())
-					{
-						game.move();
-					}
+					game.move();
+
 					try {
 						Thread.sleep(sleepTime);
 					}
