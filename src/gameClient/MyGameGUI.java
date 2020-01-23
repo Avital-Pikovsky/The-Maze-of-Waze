@@ -308,11 +308,12 @@ public class MyGameGUI {
 			StdDraw.picture((minX+maxX)/2, (minY+maxY)/2, GameImg[0]);	
 			return;
 		}
-		String[] arr = new String[24];
+		String[] arr = new String[25];
 		for(int j=0; j<24;j++) {
 			arr[j] = j+"";
 		}
-		Object cGame = JOptionPane.showInputDialog(null, "Choose a level 0-23", "Message",
+		arr[24] = "-31";
+		Object cGame = JOptionPane.showInputDialog(null, "Choose a level 0-23, -31", "Message",
 				JOptionPane.INFORMATION_MESSAGE, null, arr, arr[0]);
 		if(cGame==null) {
 			drawCanvas();
