@@ -224,7 +224,7 @@ public class MyGameGUI {
 		int i=0;
 		for (Robot ro : d.robotList) {
 			kl.Place_Mark("data/assaf.png",ro.getPos().toString());
-			StdDraw.picture(ro.getPos().x(), ro.getPos().y(), RobotsImg[i] , 0.002, 0.001);
+			StdDraw.picture(ro.getPos().x(), ro.getPos().y(), RobotsImg[i%3] , 0.002, 0.001);
 			i++;
 		}
 	}

@@ -1,11 +1,13 @@
 package tests;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
 import dataStructure.DGraph;
 import dataStructure.Node;
+import gameClient.MyGameGUI;
 import utils.Point3D;
 
 class DGraphTest {
@@ -20,6 +22,20 @@ class DGraphTest {
 		return g;
 	}
 
+	private DGraph createCrazy() {
+		DGraph c = new DGraph();
+		for(int i=0; i<1000000; i++) {
+			c.addNode(new Node(i, new Point3D(i/1000,i/1000), 0, "", 0));
+		}
+		return c;
+	}
+
+	@Test
+	void testCrazy() {
+		DGraph c = createCrazy();
+		int s = c.getV().size();
+		assertTrue(1000000==s);
+	}
 	@Test
 	void testAddNode() {
 		DGraph d = createGraph();
