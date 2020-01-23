@@ -1715,6 +1715,20 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			{20,290,0},
 			{23,1140,0}
 	};
+	public static Integer[][] rankTable = {
+			{0,0},
+			{1,0},
+			{3,0},
+			{5,0},
+			{9,0},
+			{11,0},
+			{13,0},
+			{16,0},
+			{19,0},
+			{20,0},
+			{23,0}
+	};
+	public static ArrayList<Integer> amountForEach = new ArrayList<>();
 	public static ArrayList<Integer> stage = new ArrayList<>();
 
 	public static void numGameLog() {	
@@ -1771,17 +1785,14 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 				stage.add(20);
 				stage.add(23);
 			}
-			System.out.println(stage.size());
 			while(resultSet.next()) {
-				//	if(MyGameGUI.Id == resultSet.getInt("UserID")) {
 				maxScore =  resultSet.getInt("score");
 				minMove = resultSet.getInt("moves");
 				lev = resultSet.getInt("levelID");
 				if(maxScore > rows[stage.indexOf(lev)][2] && minMove <= rows[stage.indexOf(lev)][1])
 					rows[stage.indexOf(lev)][2] = maxScore;
-				//}
-
 			}
+
 			resultSet.close();
 			statement.close();		
 			connection.close();	
@@ -1827,28 +1838,41 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			MinePrintLog();
 
 			Object[] col =  {"Stage","Max moves allowed","Best Score"};
-
 			JTable table = new JTable(rows,col);
+			table.setRowHeight(36);
+			table.setFont(new Font("Omer", Font.BOLD, 20));
 			JOptionPane.showMessageDialog(null, new JScrollPane(table));
 
 			break;
 
 		case "Our rank for each level":
+			int amount;
+
 			try {
 				Class.forName("com.mysql.jdbc.Driver");
 				MinePrintLog();
 				Connection connection = 
 						DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcUserPassword);
 				Statement statement = connection.createStatement();
-				String sql = "SELECT * FROM Logs order by levelID, UserID, score";
-					
-				ResultSet resultSet = statement.executeQuery(sql);
-				resultSet.
-				while(resultSet.next()) {
-					System.out.println(resultSet.getInt("levelID"));
-					System.out.println(resultSet.getInt("UserID"));
-					System.out.println(resultSet.getInt("score"));
+				String sql = null;
+				ResultSet resultSet = null;
+				for(Integer in : stage) {
+					sql = "SELECT UserID,MAX(score) FROM Logs WHERE UserID<>0 AND UserID<>999 AND UserID<>"+MyGameGUI.Id+
+							" AND moves<="+rows[stage.indexOf(in)][1]+" AND LevelID="+stage.indexOf(in)+" Group by UserID;";
+					resultSet= statement.executeQuery(sql);
+					amount = 1;
+					while(resultSet.next()){
+						amount++;
+					}
+					rankTable[stage.indexOf(in)][1] = amount;
 				}
+				Object[] rankCol =  {"Stage","Our Rank"};
+
+				JTable rankTab = new JTable(rankTable,rankCol);
+				rankTab.setRowHeight(36);
+				rankTab.setFont(new Font("Omer", Font.BOLD, 20));
+				JOptionPane.showMessageDialog(null, new JScrollPane(rankTab));
+
 				resultSet.close();
 				statement.close();		
 				connection.close();	
