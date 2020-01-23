@@ -1708,7 +1708,9 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			{16,290,0},
 			{19,580,0},
 			{20,290,0},
-			{23,1140,0}
+			{23,1140,0},
+			{-31,1000,0}
+
 	};
 	public static Integer[][] rankTable = {
 			{0,0},
@@ -1721,7 +1723,8 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			{16,0},
 			{19,0},
 			{20,0},
-			{23,0}
+			{23,0},
+			{-31,0}
 	};
 	public static ArrayList<Integer> amountForEach = new ArrayList<>();
 	public static ArrayList<Integer> stage = new ArrayList<>();
@@ -1766,7 +1769,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			Statement statement = connection.createStatement();
 			String allCustomersQuery = "SELECT * FROM Logs WHERE UserID ="+MyGameGUI.Id+";";
 			ResultSet resultSet = statement.executeQuery(allCustomersQuery);
-			if(stage.size()!=11) {
+			if(stage.size()!=12) {
 				stage.add(0);
 				stage.add(1);
 				stage.add(3);
@@ -1778,6 +1781,8 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 				stage.add(19);
 				stage.add(20);
 				stage.add(23);
+				stage.add(-31);
+
 			}
 			while(resultSet.next()) {
 				maxScore =  resultSet.getInt("score");
@@ -1829,7 +1834,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 
 		case "Our max game":
 			if(Json_Updates.mu==-1)
-				Json_Updates.mu =0;
+				Json_Updates.mu = 0;
 			JOptionPane.showMessageDialog(null, "Max user level: "+Json_Updates.mu+".","Messege",1);
 
 			break;
