@@ -67,6 +67,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.TreeSet;
 import java.util.NoSuchElementException;
@@ -1788,7 +1789,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 				maxScore =  resultSet.getInt("score");
 				minMove = resultSet.getInt("moves");
 				lev = resultSet.getInt("levelID");
-				if(maxScore > rows[stage.indexOf(lev)][2] && minMove <= rows[stage.indexOf(lev)][1])
+				if((maxScore > rows[stage.indexOf(lev)][2]) && (minMove <= rows[stage.indexOf(lev)][1]))
 					rows[stage.indexOf(lev)][2] = maxScore;
 			}
 
@@ -1806,7 +1807,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		}
 		catch (Exception x) {
 			System.exit(0);			
-			}
+		}
 	}
 
 	/**
@@ -1846,7 +1847,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			table.setRowHeight(36);
 			table.setFont(new Font("Omer", Font.BOLD, 20));
 			JOptionPane.showMessageDialog(null, new JScrollPane(table));
-			
+
 
 			break;
 
@@ -1856,14 +1857,15 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			try {
 				Class.forName("com.mysql.jdbc.Driver");
 				MinePrintLog();
+				System.out.println(Arrays.deepToString(rows));
 				Connection connection = 
 						DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcUserPassword);
 				Statement statement = connection.createStatement();
 				String sql = null;
 				ResultSet resultSet = null;
 				for(Integer in : stage) {
-					sql = "SELECT UserID,MAX(score) FROM Logs WHERE UserID<>0 AND UserID<>999 AND UserID<>"+MyGameGUI.Id+
-							" AND moves<="+rows[stage.indexOf(in)][1]+" AND LevelID="+stage.indexOf(in)+" Group by UserID;";
+					sql = "SELECT UserID,MAX(score) FROM Logs score WHERE UserID<>0 AND UserID<>999 AND UserID<>"+MyGameGUI.Id+
+							" AND moves<="+rows[stage.indexOf(in)][1]+" AND score>"+ rows[stage.indexOf(in)][2]+" AND LevelID="+stage.indexOf(in)+" Group by UserID;";
 					resultSet= statement.executeQuery(sql);
 					amount = 1;
 					while(resultSet.next()){
@@ -1896,7 +1898,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 			}
 			catch (Exception x) {
 				System.exit(0);			
-				}
+			}
 
 
 			break;

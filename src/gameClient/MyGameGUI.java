@@ -325,7 +325,7 @@ public class MyGameGUI {
 		game_service game = Game_Server.getServer(Integer.parseInt((String) cGame));
 		setGame(game);
 		kl = new KML_Logger(game_num,game);
-		//	kl.UploadKMLfile(game);
+		//kl.UploadKMLfile(game);
 		levelInt = Integer.parseInt(cGame.toString());
 
 		Json_Updates ju = new Json_Updates(this);
@@ -478,15 +478,5 @@ public class MyGameGUI {
 	public KML_Logger getK() {
 		return kl;
 	}
-	/**
-	 * set the Kml of the GUI_Graph.
-	 */
-	public void setK(KML_Logger k) {
-		this.kl = k;
-	}
-
 
 }
-
-
-

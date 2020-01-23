@@ -27,6 +27,11 @@ public class Json_Updates {
 
 
 	//******************constructors*************************
+	
+	public Json_Updates(int level) {
+		this.d = new DGraph();
+		this.game = Game_Server.getServer(level);
+	}
 	/**
 	 * A constructor thats get MyGameGUI object and set the parameters by it.
 	 * @param my
@@ -35,6 +40,7 @@ public class Json_Updates {
 		this.d = my.getDgraph();
 		this.game = my.getGame();
 	}
+
 
 	/**
 	 * This method initializes a Graph from a game json file,
@@ -131,6 +137,13 @@ public class Json_Updates {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public DGraph getD() {
+		return d;
+	}
+	public void setD(DGraph d) {
+		this.d = d;
 	}
 }
 

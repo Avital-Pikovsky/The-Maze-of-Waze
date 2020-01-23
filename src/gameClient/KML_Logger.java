@@ -15,7 +15,7 @@ import dataStructure.node_data;
  * and view the game course in a specific level
  * the kml relevant only for auto game.
  */
-class KML_Logger {
+public class KML_Logger {
 	/**
 	 * private data types of the class
 	 * int level
@@ -150,7 +150,7 @@ class KML_Logger {
 	/**
 	 * mark the kml the end of the script
 	 */
-	void KML_Stop()
+	public void KML_Stop()
 	{
 		str.append("  \r\n</Document>\r\n" +
 				"</kml>");
