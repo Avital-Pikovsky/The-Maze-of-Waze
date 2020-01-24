@@ -1,5 +1,4 @@
 # The-Maze-of-Waze
-Third task in OOP course.
 
 This repository contains a graph based game.
 
@@ -16,5 +15,8 @@ In the manual mode you have full control of placing the robots and moving them, 
 In the auto mode you will watch the game plays automatically, moving the robots with graph algorithms functions.
 
 This repository is based on previous repository :[Weigthted-Directed-Graph](https://github.com/Avital-Pikovsky/Weigthted-Directed-Graph).
+
+
+
 ![11](https://user-images.githubusercontent.com/57085913/72685860-bd44f400-3af6-11ea-8291-03517582b621.png)
 
